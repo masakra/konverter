@@ -1,0 +1,5 @@
+<!DOCTYPE RCC><RCC version="1.0">
+ <qresource>
+	<file alias="postmark.png">icons/postmark_97x61.png</file>
+ </qresource>
+</RCC>
