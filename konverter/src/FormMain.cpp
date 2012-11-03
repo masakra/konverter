@@ -201,6 +201,8 @@ FormMain::setSenderData()
 void
 FormMain::contactChanged( const QModelIndex & current, const QModelIndex & previous )
 {
+	State = Normal;
+
 	const int row = current.row();
 
 	const int id = model->index( row, 0 ).data().toInt();
