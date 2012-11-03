@@ -1,14 +1,13 @@
 
 PRAGMA foreign_keys = ON;
-PRAGMA encoding = 'KOI8-R';
 
 DROP TABLE IF EXISTS contact;
 
 CREATE TABLE contact (
 	id		INTEGER PRIMARY KEY,
-	who		TEXT NOT NULL,		--- who
-	whe		TEXT NOT NULL,		--- where
-	ind		TEXT,				--- post index
+	who		TEXT,		--- who
+	whe		TEXT,		--- where
+	ind		TEXT,		--- post index
 	touch	TEXT NOT NULL DEFAULT '1990-01-01 00:00:00'
 );
 

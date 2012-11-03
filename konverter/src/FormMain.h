@@ -22,6 +22,11 @@ class FormMain : public QMainWindow
 	Q_OBJECT
 
 	private:
+		enum Status {
+			Normal,
+			NewContact
+		} State;
+
 		void createWidgets();
 
 		WidgetSender * sender;
@@ -35,6 +40,8 @@ class FormMain : public QMainWindow
 		void setSenderData();
 
 		void createModel();
+
+		void refresh( int id = -1 );
 
 		void setAddressFont( const QFont & f );
 
@@ -50,10 +57,29 @@ class FormMain : public QMainWindow
 
 		QPrinter * printer;
 
+		void modifyContact( const QString & field, const QString & text, int id = 0 ) const;
+
+		void modifyRecipient( const QString & field, const QString & text );
+
+		int insertContact( const QString & field, const QString & text ) const;
+
+		int currentId() const;
+
 	private Q_SLOTS:
 		void contactChanged( const QModelIndex & current, const QModelIndex & previous );
 
 		void print();
+
+		void modifySenderWho( const QString & text ) const;
+		void modifySenderWhere( const QString & text ) const;
+		void modifySenderIndex( const QString & text ) const;
+
+		void modifyRecipientWho( const QString & text );
+		void modifyRecipientWhere( const QString & text );
+		void modifyRecipientIndex( const QString & text );
+
+		void addContact();
+		void delContact();
 
 	public:
 		FormMain( QWidget * parent = 0 );

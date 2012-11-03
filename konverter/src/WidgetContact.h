@@ -58,10 +58,6 @@ class WidgetContact : public QWidget
 	protected Q_SLOTS:
 		void selectAddressFont();
 
-		void setWho();
-		void setWhere();
-		void setIndex();
-
 	public:
 		WidgetContact( QWidget * parent );
 
@@ -80,6 +76,10 @@ class WidgetContact : public QWidget
 		void setWho( const QString & text );
 		void setWhere( const QString & text );
 		void setIndex( const QString & text );
+
+		void setWho();
+		void setWhere();
+		void setIndex();
 
 	Q_SIGNALS:
 		void whoChanged( const QString & text );

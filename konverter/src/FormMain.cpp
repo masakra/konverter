@@ -42,6 +42,14 @@ FormMain::createModel()
 {
 	model = new QSqlQueryModel( this );
 
+	refresh();
+}
+
+void
+FormMain::refresh( int id )
+{
+	State = Normal;
+
 	model->setQuery("SELECT "
 			"id, "
 			"who, "
@@ -61,6 +69,15 @@ FormMain::createModel()
 
 	connect( table->selectionModel(), SIGNAL( currentChanged( const QModelIndex &, const QModelIndex & ) ),
 				SLOT( contactChanged( const QModelIndex &, const QModelIndex & ) ) );
+
+	if ( id != -1 ) {
+		for ( int i = 0; i < model->rowCount(); ++i ) {
+			if ( model->index( i, 0 ).data().toInt() == id ) {
+				table->setCurrentIndex( model->index( i, 1 ) );
+				break;
+			}
+		}
+	}
 }
 
 void
@@ -83,20 +100,44 @@ FormMain::createWidgets()
 
 	sender = new WidgetSender( centralWidget );
 
+	connect( sender, SIGNAL( whoChanged( const QString & ) ),
+			SLOT( modifySenderWho( const QString & ) ) );
+
+	connect( sender, SIGNAL( whereChanged( const QString & ) ),
+			SLOT( modifySenderWhere( const QString & ) ) );
+
+	connect( sender, SIGNAL( indexChanged( const QString & ) ),
+			SLOT( modifySenderIndex( const QString & ) ) );
+
 	table = new QTableView( centralWidget );
 	table->horizontalHeader()->hide();
 	table->verticalHeader()->hide();
 	table->horizontalHeader()->setStretchLastSection( true );
 
-	QToolButton * buttonPrint = new QToolButton( centralWidget );
+	QToolButton * buttonPrint = new QToolButton( centralWidget ),
+				* buttonAdd = new QToolButton( centralWidget ),
+				* buttonDel = new QToolButton( centralWidget );
+
 	buttonPrint->setIconSize( QSize( 97, 61 ) );
 	buttonPrint->setIcon( QIcon(":/postmark.png") );
 
+	buttonAdd->setIconSize( QSize( 48, 48 ) );
+	buttonAdd->setIcon( QIcon(":/add.png") );
+
+	buttonDel->setIconSize( QSize( 48, 48 ) );
+	buttonDel->setIcon( QIcon(":/delete.png") );
+
+	connect( buttonAdd, SIGNAL( clicked() ), SLOT( addContact() ) );
+
+	connect( buttonDel, SIGNAL( clicked() ), SLOT( delContact() ) );
+
 	connect( buttonPrint, SIGNAL( clicked() ), SLOT( print() ) );
 
+	QHBoxLayout * layoutControls = new QHBoxLayout(),
+				* layoutButtons = new QHBoxLayout();
 
-	QHBoxLayout * layoutControls = new QHBoxLayout();
 	layoutControls->setMargin( 15 );
+	layoutButtons->setMargin( 15 );
 
 	layoutControls->addStretch();
 	layoutControls->addWidget( buttonPrint );
@@ -105,11 +146,27 @@ FormMain::createWidgets()
 
 	recipient = new WidgetRecipient( centralWidget );
 
+	connect( recipient, SIGNAL( whoChanged( const QString & ) ),
+			SLOT( modifyRecipientWho( const QString & ) ) );
+
+	connect( recipient, SIGNAL( whereChanged( const QString & ) ),
+			SLOT( modifyRecipientWhere( const QString & ) ) );
+
+	connect( recipient, SIGNAL( indexChanged( const QString & ) ),
+			SLOT( modifyRecipientIndex( const QString & ) ) );
+
+	layoutButtons->addStretch();
+	layoutButtons->addWidget( buttonAdd );
+	layoutButtons->addWidget( buttonDel );
+	layoutButtons->addStretch();
+
 	gridLayout->addWidget( sender, 0, 0 );
 	gridLayout->addLayout( layoutControls, 0, 1, 1, 1, Qt::AlignTop );
 
-	gridLayout->addWidget( table, 1, 0 );
+	gridLayout->addWidget( table, 1, 0, 2, 1 );
 	gridLayout->addWidget( recipient, 1, 1 );
+
+	gridLayout->addLayout( layoutButtons, 2, 1 );
 
 	setCentralWidget( centralWidget );
 }
@@ -251,5 +308,164 @@ void
 FormMain::createPrinter()
 {
 	printer = new QPrinter( QPrinter::HighResolution );
+}
+
+void
+FormMain::modifyContact( const QString & field, const QString & text, int id ) const
+{
+	QSqlQuery q;
+
+	q.prepare( QString("UPDATE "
+			"contact "
+		"SET "
+			"%1 = :text "
+		"WHERE "
+			"id = :id").arg( field ) );
+
+	q.bindValue(":text", text );
+	q.bindValue(":id", id );
+
+	if ( ! q.exec() )
+		_yell( q );
+}
+
+void
+FormMain::modifySenderWho( const QString & text ) const
+{
+	modifyContact( "who", text );
+}
+
+void
+FormMain::modifySenderWhere( const QString & text ) const
+{
+	modifyContact( "whe", text );
+}
+
+void
+FormMain::modifySenderIndex( const QString & text ) const
+{
+	modifyContact( "ind", text );
+}
+
+void
+FormMain::modifyRecipient( const QString & field, const QString & text )
+{
+	if ( State == NewContact ) {
+		const int newId = insertContact( field, text );
+		refresh( newId );
+	} else {
+		const int id = currentId();
+		modifyContact( field, text, id );
+		refresh( id );
+	}
+}
+
+void
+FormMain::modifyRecipientWho( const QString & text )
+{
+	modifyRecipient( "who", text );
+	/*
+	if ( State == NewContact ) {
+		const int newId = insertContact( "who", text );
+		refresh( newId );
+	} else {
+		const int id = currentId();
+		modifyContact( "who", text, id );
+		refresh( id );
+	}
+	*/
+}
+
+void
+FormMain::modifyRecipientWhere( const QString & text )
+{
+	modifyRecipient( "whe", text );
+}
+
+void
+FormMain::modifyRecipientIndex( const QString & text )
+{
+	modifyRecipient( "ind", text );
+}
+
+int
+FormMain::insertContact( const QString & field, const QString & text ) const
+{
+	QString sql( "INSERT INTO contact ( who, whe, ind ) VALUES (" );
+
+	QSqlQuery q;
+
+	if ( field == "who" )
+		sql += ":text, '', ''";
+	else if ( field == "whe" )
+		sql += "'', :text, ''";
+	else if ( field == "ind" )
+		sql += "'', '', :text";
+	else {
+		_yell( QString("Неизвестное поле: %1").arg( field ) );
+		return;
+	}
+
+	q.prepare( sql + ")" );
+
+	q.bindValue(":text", text );
+
+	if ( q.exec() ) {
+		q.prepare("SELECT last_insert_rowid()");
+
+		if ( q.exec() && q.first() ) {
+			return q.value( 0 ).toInt();
+		} else
+			_yell( q );
+	} else
+		_yell( q );
+
+	return -1;
+}
+
+void
+FormMain::addContact()
+{
+	State = NewContact;
+	recipient->setAll( "", "", "" );
+	recipient->setWho();
+}
+
+void
+FormMain::delContact()
+{
+	if ( ! table->selectionModel() )
+		return;
+
+	if ( QMessageBox::question( this, "Подтвердите", "Действительно удалить контакт?",
+				QMessageBox::Yes | QMessageBox::No, QMessageBox::No ) == QMessageBox::No )
+		return;
+
+	QSqlQuery q;
+
+	// TODO удалить все записи из журнала
+
+	q.prepare("DELETE FROM "
+				"contact "
+			"WHERE "
+				"id = :id");
+
+	q.bindValue(":id", currentId() );
+
+	if ( q.exec() )
+		refresh();
+	else
+		_yell( q );
+
+}
+
+int
+FormMain::currentId() const
+{
+	if ( table->selectionModel() ) {
+		const int row = table->selectionModel()->currentIndex().row();
+		return model->index( row, 0 ).data().toInt();
+	} else
+		return -1;
 }
 
