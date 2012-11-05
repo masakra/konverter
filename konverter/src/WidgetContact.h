@@ -78,8 +78,8 @@ class WidgetContact : public QWidget
 		void setIndex( const QString & text );
 
 		void setWho();
-		void setWhere();
-		void setIndex();
+		virtual void setWhere() = 0;
+		virtual void setIndex() = 0;
 
 	Q_SIGNALS:
 		void whoChanged( const QString & text );

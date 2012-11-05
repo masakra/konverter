@@ -10,9 +10,9 @@ class WidgetRecipient : public WidgetContact
 		static const QString toWho,
 							 toWhere;
 
-
 	protected:
 		virtual QSize sizeHint() const;
+		virtual void mouseDoubleClickEvent( QMouseEvent * event );
 		virtual void paintEvent( QPaintEvent * event );
 
 		virtual const QString & whoStr() const;
@@ -21,6 +21,10 @@ class WidgetRecipient : public WidgetContact
 
 	public:
 		WidgetRecipient( QWidget * parent );
+
+	public Q_SLOTS:
+		virtual void setWhere();
+		virtual void setIndex();
 };
 
 #endif

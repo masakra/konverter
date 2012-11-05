@@ -135,44 +135,6 @@ WidgetContact::setWho()
 }
 
 void
-WidgetContact::setWhere()
-{
-	State = SettingWhere;
-
-	const QFontMetrics fm( addressFont );
-
-	const int y = fm.height() + MARGIN +	// 1st row
-		SPACING + fm.height() -				// 2nd row
-		edit->height() + 4;
-
-	edit->setText( where );
-
-	editShow( width() - lineMargin() - MARGIN, lineMargin(), y );
-}
-
-void
-WidgetContact::setIndex()
-{
-	State = SettingIndex;
-
-	const QFontMetrics fm( addressFont );
-
-	const int y = fm.height() + MARGIN +	// 1st row
-		SPACING + fm.height() +				// 2nd row
-		SPACING + fm.height() +				// 3rd row
-		SPACING + fm.height() -				// 4th row
-		edit->height() + 4,
-
-			  editHeight = SPACING + fm.height(),
-			  editWidth = qRound( editHeight / 13. * 60. ),
-			  editMargin = width() - MARGIN - editWidth;
-
-	edit->setText( index );
-
-	editShow( editWidth, editMargin, y );
-}
-
-void
 WidgetContact::editShow( int w, int m, int y )
 {
 	update();

@@ -28,6 +28,11 @@ class WidgetSender : public WidgetContact
 
 	public:
 		WidgetSender( QWidget * parent );
+
+	public Q_SLOTS:
+		virtual void setWhere();
+		virtual void setIndex();
+
 };
 
 #endif

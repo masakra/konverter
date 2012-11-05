@@ -2,6 +2,7 @@
 #include "WidgetRecipient.h"
 
 #include <QtGui>
+#include "LineEdit.h"
 
 const QString WidgetRecipient::toWho = QTextCodec::codecForName("KOI8-R")->toUnicode("Кому");
 const QString WidgetRecipient::toWhere = QTextCodec::codecForName("KOI8-R")->toUnicode("Куда");
@@ -121,5 +122,77 @@ const QString &
 WidgetRecipient::whereStr() const
 {
 	return toWhere;
+}
+
+void
+WidgetRecipient::setWhere()
+{
+	State = SettingWhere;
+
+	const QFontMetrics fm( addressFont );
+
+	const int y = fm.height() + MARGIN +	// 1st row
+		SPACING + fm.height() +				// 2nd row
+		SPACING + fm.height() -				// 3rd row
+		edit->height() + 4;
+
+	edit->setText( where );
+
+	editShow( width() - lineMargin() - MARGIN, lineMargin(), y );
+}
+
+void
+WidgetRecipient::setIndex()
+{
+	State = SettingIndex;
+
+	const QFontMetrics fm( addressFont );
+
+	const int boxHeight = qRound( SPACING + fm.height() ) / 6.5 * 8,
+			  y = fm.height() + MARGIN +		// 1st row
+					SPACING + fm.height() +		// 2nd row
+					SPACING + fm.height() +		// 3rd row
+					SPACING + fm.height() +		// 4th row
+					SPACING + fm.height() +		// 5th row
+					SPACING + fm.height() +		// 6th row
+					boxHeight -
+					edit->height() + 4,
+
+			  editWidth = qRound( boxHeight / 8. * 35. );
+
+	edit->setText( index );
+
+	editShow( editWidth, MARGIN, y );
+}
+
+void
+WidgetRecipient::mouseDoubleClickEvent( QMouseEvent * event )
+{
+	const int x = event->x(),
+			  y = event->y();
+
+	if ( x > MARGIN && x <= width() - MARGIN &&  y > MARGIN  ) {
+		const QFontMetrics fm( addressFont );
+
+		const int boxHeight = qRound( SPACING + fm.height() ) / 6.5 * 8,
+				  y2 = MARGIN + fm.height() + SPACING + fm.height() + 2,
+				  y6 = y2 +
+					  SPACING + fm.height() +
+					  SPACING + fm.height() +
+					  SPACING + fm.height() +
+					  SPACING + fm.height(),
+				  y7 = y6 + boxHeight;
+
+		if ( y <= y2 )
+			setWho();
+		else if ( y <= y6 )
+			setWhere();
+		else if ( y <= y7 ) {
+			const int boxWidth = qRound( boxHeight / 8. * 35 );
+
+			if ( x > MARGIN && x <= MARGIN + boxWidth )
+				setIndex();
+		}
+	}
 }
 
