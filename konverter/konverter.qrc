@@ -1,7 +1,9 @@
 <!DOCTYPE RCC><RCC version="1.0">
  <qresource>
+	<file alias="main.png">icons/envelopes_128x128.png</file>
 	<file alias="postmark.png">icons/postmark_97x61.png</file>
 	<file alias="add.png">icons/add_48x48.png</file>
 	<file alias="delete.png">icons/delete_48x48.png</file>
+	<file alias="report.png">icons/report_48x48.png</file>
  </qresource>
 </RCC>

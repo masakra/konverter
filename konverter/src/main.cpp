@@ -14,6 +14,7 @@ main( int argc, char ** argv )
 	app.setApplicationName( "konverter" );
 	app.setApplicationVersion( "0.0.1" );
 	app.setOrganizationName( "Nordavia-RA" );
+	app.setWindowIcon( QIcon(":/main.png") );
 
 	QTextCodec::setCodecForCStrings( QTextCodec::codecForName( "KOI8-R" ) );
 

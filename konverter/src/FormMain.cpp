@@ -50,7 +50,7 @@ FormMain::refresh( int id )
 {
 	State = Normal;
 
-	model->setQuery("SELECT "
+	model->setQuery( QString("SELECT "
 			"id, "
 			"who, "
 			"whe, "
@@ -59,8 +59,10 @@ FormMain::refresh( int id )
 			"contact "
 		"WHERE "
 			"id != 0 "
+			"%1 "
 		"ORDER BY "
-			"touch DESC ");
+			"touch DESC ")
+			.arg( editFilter->text().isEmpty() ? "": QString("AND who like '%%1%'").arg( editFilter->text() ) ) );
 
 	table->setModel( model );
 	table->hideColumn( 0 );
@@ -114,9 +116,21 @@ FormMain::createWidgets()
 	table->verticalHeader()->hide();
 	table->horizontalHeader()->setStretchLastSection( true );
 
+	editFilter = new QLineEdit( centralWidget );
+
+	connect( editFilter, SIGNAL( textChanged( const QString & ) ),
+			SLOT( filterChanged( const QString & ) ) );
+
+	QVBoxLayout * layoutTable = new QVBoxLayout();
+
+	layoutTable->addWidget( table );
+	layoutTable->addWidget( editFilter );
+
 	QToolButton * buttonPrint = new QToolButton( centralWidget ),
 				* buttonAdd = new QToolButton( centralWidget ),
-				* buttonDel = new QToolButton( centralWidget );
+				* buttonDel = new QToolButton( centralWidget ),
+				* buttonReport = new QToolButton( centralWidget ),
+				* buttonAbout = new QToolButton( centralWidget );
 
 	buttonPrint->setIconSize( QSize( 97, 61 ) );
 	buttonPrint->setIcon( QIcon(":/postmark.png") );
@@ -127,11 +141,23 @@ FormMain::createWidgets()
 	buttonDel->setIconSize( QSize( 48, 48 ) );
 	buttonDel->setIcon( QIcon(":/delete.png") );
 
+	buttonReport->setIconSize( QSize( 48, 48 ) );
+	buttonReport->setIcon( QIcon( ":/report.png") );
+
+	buttonAbout->setIconSize( QSize( 48, 48 ) );
+	buttonAbout->setIcon( qApp->windowIcon() );
+
 	connect( buttonAdd, SIGNAL( clicked() ), SLOT( addContact() ) );
 
 	connect( buttonDel, SIGNAL( clicked() ), SLOT( delContact() ) );
 
+	connect( buttonAbout, SIGNAL( clicked() ), SLOT( about() ) );
+
 	connect( buttonPrint, SIGNAL( clicked() ), SLOT( print() ) );
+
+	comboPaperSize = new QComboBox( this );
+	comboPaperSize->addItem( "C5E - 163 x 229 мм.", QPrinter::C5E );
+	comboPaperSize->addItem( "DLE - 110 x 220 мм.", QPrinter::DLE );
 
 	QHBoxLayout * layoutControls = new QHBoxLayout(),
 				* layoutButtons = new QHBoxLayout();
@@ -139,6 +165,8 @@ FormMain::createWidgets()
 	layoutControls->setMargin( 15 );
 	layoutButtons->setMargin( 15 );
 
+	layoutControls->addStretch();
+	layoutControls->addWidget( comboPaperSize );
 	layoutControls->addStretch();
 	layoutControls->addWidget( buttonPrint );
 
@@ -158,12 +186,15 @@ FormMain::createWidgets()
 	layoutButtons->addStretch();
 	layoutButtons->addWidget( buttonAdd );
 	layoutButtons->addWidget( buttonDel );
+	layoutButtons->addWidget( buttonReport );
+	layoutButtons->addStretch();
+	layoutButtons->addWidget( buttonAbout );
 	layoutButtons->addStretch();
 
 	gridLayout->addWidget( sender, 0, 0 );
 	gridLayout->addLayout( layoutControls, 0, 1, 1, 1, Qt::AlignTop );
 
-	gridLayout->addWidget( table, 1, 0, 2, 1 );
+	gridLayout->addLayout( layoutTable, 1, 0, 2, 1 );
 	gridLayout->addWidget( recipient, 1, 1 );
 
 	gridLayout->addLayout( layoutButtons, 2, 1 );
@@ -470,4 +501,17 @@ FormMain::currentId() const
 	} else
 		return -1;
 }
+
+void
+FormMain::about()
+{
+	QMessageBox::about( this, "О программе", "О программе" );
+}
+
+void
+FormMain::filterChanged( const QString & text )
+{
+	refresh( currentId() );
+}
+
 

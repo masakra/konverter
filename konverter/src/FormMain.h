@@ -10,6 +10,8 @@
 #define FONT_ITALIC "font_italic"
 
 class QAction;
+class QComboBox;
+class QLineEdit;
 class QModelIndex;
 class QPrinter;
 class QSqlQueryModel;
@@ -35,7 +37,11 @@ class FormMain : public QMainWindow
 
 		QTableView * table;
 
+		QLineEdit * editFilter;
+
 		QSqlQueryModel * model;
+
+		QComboBox * comboPaperSize;
 
 		void setSenderData();
 
@@ -80,6 +86,10 @@ class FormMain : public QMainWindow
 
 		void addContact();
 		void delContact();
+
+		void filterChanged( const QString & text );
+
+		void about();
 
 	public:
 		FormMain( QWidget * parent = 0 );
