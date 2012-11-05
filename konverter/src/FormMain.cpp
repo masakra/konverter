@@ -4,6 +4,8 @@
 #include <QtGui>
 #include <QtSql>
 #include "_.h"
+#include "DialogReport.h"
+#include "Report.h"
 #include "WidgetRecipient.h"
 #include "WidgetSender.h"
 
@@ -150,6 +152,8 @@ FormMain::createWidgets()
 	connect( buttonAdd, SIGNAL( clicked() ), SLOT( addContact() ) );
 
 	connect( buttonDel, SIGNAL( clicked() ), SLOT( delContact() ) );
+
+	connect( buttonReport, SIGNAL( clicked() ), SLOT( report() ) );
 
 	connect( buttonAbout, SIGNAL( clicked() ), SLOT( about() ) );
 
@@ -505,13 +509,54 @@ FormMain::currentId() const
 void
 FormMain::about()
 {
-	QMessageBox::about( this, "О программе", "О программе" );
+	QMessageBox::about( this, "О программе",
+			QString("<H3>%1</H3>").arg( qApp->applicationName() ) +
+				"2012 г. ЗАО " + QChar(0xAB) + QString("Нордавиа-РА") + QChar(0xBB) );
 }
 
 void
 FormMain::filterChanged( const QString & text )
 {
 	refresh( currentId() );
+}
+
+void
+FormMain::report()
+{
+	DialogReport d;
+
+	if ( d.exec() ) {
+		Report * rep = new Report();
+		rep->show( d );
+	}
+}
+
+void
+FormMain::writeLog() const
+{
+
+	const int id = currentId();
+
+
+	if ( id == -1 )
+		return;
+
+	QSqlQuery q;
+
+	q.prepare("INSERT INTO log ("
+			"contact_id "
+		") VALUES ("
+			":id )");
+
+	q.bindValue(":id", id );
+
+	if ( ! q.exec() )
+		_yell( q );
+}
+
+void
+FormMain::setStatus( Status s )
+{
 }
 
 

@@ -24,3 +24,10 @@ INSERT INTO contact (
 	'r. Архангельск, аэропорт Архангельск д.4, корп.1',
 	'163053' );
 
+DROP TABLE IF EXISTS log;
+
+CREATE TABLE log (
+	contact_id	INTEGER NOT NULL REFERENCES contact ( id ) ON DELETE CASCADE,
+	timestamp	TEXT NOT NULL DEFAULT ( "current_timestamp"() )
+);
+

@@ -29,6 +29,8 @@ class FormMain : public QMainWindow
 			NewContact
 		} State;
 
+		void setStatus( Status s );
+
 		void createWidgets();
 
 		WidgetSender * sender;
@@ -71,6 +73,8 @@ class FormMain : public QMainWindow
 
 		int currentId() const;
 
+		void writeLog() const;
+
 	private Q_SLOTS:
 		void contactChanged( const QModelIndex & current, const QModelIndex & previous );
 
@@ -88,6 +92,8 @@ class FormMain : public QMainWindow
 		void delContact();
 
 		void filterChanged( const QString & text );
+
+		void report();
 
 		void about();
 
