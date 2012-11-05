@@ -10,12 +10,14 @@ class LineEdit : public QLineEdit
 
 	protected:
 		virtual void keyPressEvent( QKeyEvent * event );
+		virtual void focusOutEvent( QFocusEvent * event );
 
 	public:
 		LineEdit( QWidget * parent );
 
 	Q_SIGNALS:
 		void escapePressed();
+		void focusOut();
 };
 
 #endif

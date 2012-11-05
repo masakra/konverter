@@ -17,3 +17,11 @@ LineEdit::keyPressEvent( QKeyEvent * event )
 	QLineEdit::keyPressEvent( event );
 }
 
+void
+LineEdit::focusOutEvent( QFocusEvent * event )
+{
+	emit focusOut();
+
+	QLineEdit::focusOutEvent( event );
+}
+

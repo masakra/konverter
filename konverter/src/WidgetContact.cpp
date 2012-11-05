@@ -17,6 +17,7 @@ WidgetContact::WidgetContact( QWidget * parent )
 
 	connect( edit, SIGNAL( returnPressed() ), SLOT( editReturned() ) );
 	connect( edit, SIGNAL( escapePressed() ), SLOT( editEscaped() ) );
+	connect( edit, SIGNAL( focusOut() ), SLOT( editEscaped() ) );
 }
 
 void
