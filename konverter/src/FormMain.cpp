@@ -661,6 +661,7 @@ FormMain::loadEnvelopes()
 	}
 
 	QTextStream in( &file );
+	in.setCodec( "UTF-8" );
 
 	while ( ! in.atEnd() ) {
 		const QString line = in.readLine().trimmed();

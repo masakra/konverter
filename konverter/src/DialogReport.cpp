@@ -6,6 +6,7 @@
 DialogReport::DialogReport( QWidget * parent )
 	: QDialog( parent )
 {
+	setWindowTitle( "Журнал" );
 	createWidgets();
 }
 
@@ -40,5 +41,17 @@ DialogReport::createWidgets()
 	layout->addWidget( editDate );
 	layout->addWidget( groupOrder );
 	layout->addWidget( buttonBox );
+}
+
+QDate
+DialogReport::date() const
+{
+	return editDate->date();
+}
+
+bool
+DialogReport::orderByWho() const
+{
+	return radioWho->isChecked();
 }
 

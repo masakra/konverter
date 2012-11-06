@@ -4,6 +4,8 @@
 
 #include <QDialog>
 
+#include <QDate>
+
 class QDateTimeEdit;
 class QRadioButton;
 
@@ -21,6 +23,10 @@ class DialogReport : public QDialog
 
 	public:
 		DialogReport( QWidget * parent = 0 );
+
+		QDate date() const;
+
+		bool orderByWho() const;
 };
 
 #endif
