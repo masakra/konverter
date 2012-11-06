@@ -23,6 +23,8 @@ FormMain::FormMain( QWidget * parent )
 
 	loadSettings();
 
+	loadEnvelopes();
+
 	QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");	// sqlite3 database
 
 	db.setDatabaseName( qApp->applicationName() + ".db" );
@@ -50,7 +52,8 @@ FormMain::createModel()
 void
 FormMain::refresh( int id )
 {
-	State = Normal;
+	//State = Normal;
+	setStatus( Normal );
 
 	model->setQuery( QString("SELECT "
 			"id, "
@@ -74,10 +77,14 @@ FormMain::refresh( int id )
 	connect( table->selectionModel(), SIGNAL( currentChanged( const QModelIndex &, const QModelIndex & ) ),
 				SLOT( contactChanged( const QModelIndex &, const QModelIndex & ) ) );
 
+	labelCount->setText( QString("записей: %1").arg( model->rowCount() ) );
+
 	if ( id != -1 ) {
 		for ( int i = 0; i < model->rowCount(); ++i ) {
 			if ( model->index( i, 0 ).data().toInt() == id ) {
-				table->setCurrentIndex( model->index( i, 1 ) );
+				const QModelIndex index = model->index( i, 1 );
+				table->setCurrentIndex( index );
+				table->scrollTo( index );
 				break;
 			}
 		}
@@ -113,10 +120,15 @@ FormMain::createWidgets()
 	connect( sender, SIGNAL( indexChanged( const QString & ) ),
 			SLOT( modifySenderIndex( const QString & ) ) );
 
+	labelCount = new QLabel( centralWidget );
+
 	table = new QTableView( centralWidget );
 	table->horizontalHeader()->hide();
 	table->verticalHeader()->hide();
 	table->horizontalHeader()->setStretchLastSection( true );
+	table->setSelectionBehavior( QAbstractItemView::SelectRows );
+	table->setSelectionMode( QAbstractItemView::SingleSelection );
+	table->setAlternatingRowColors( true );
 
 	editFilter = new QLineEdit( centralWidget );
 
@@ -125,12 +137,16 @@ FormMain::createWidgets()
 
 	QVBoxLayout * layoutTable = new QVBoxLayout();
 
+	layoutTable->addWidget( labelCount );
 	layoutTable->addWidget( table );
 	layoutTable->addWidget( editFilter );
 
+	buttonAdd = new QToolButton( centralWidget );
+	buttonDel = new QToolButton( centralWidget );
+
 	QToolButton * buttonPrint = new QToolButton( centralWidget ),
-				* buttonAdd = new QToolButton( centralWidget ),
-				* buttonDel = new QToolButton( centralWidget ),
+				//* buttonAdd = new QToolButton( centralWidget ),
+				//* buttonDel = new QToolButton( centralWidget ),
 				* buttonReport = new QToolButton( centralWidget ),
 				* buttonAbout = new QToolButton( centralWidget );
 
@@ -160,8 +176,9 @@ FormMain::createWidgets()
 	connect( buttonPrint, SIGNAL( clicked() ), SLOT( print() ) );
 
 	comboPaperSize = new QComboBox( this );
-	comboPaperSize->addItem( "C5E - 163 x 229 мм.", QPrinter::C5E );
-	comboPaperSize->addItem( "DLE - 110 x 220 мм.", QPrinter::DLE );
+	//comboPaperSize->addItem( "C5E - 163 x 229 мм.", QPrinter::C5E );
+	//comboPaperSize->addItem( "DLE - 110 x 220 мм.", QPrinter::DLE );
+	//comboPaperSize->addItem( "Уведомление - 100 x 145 мм.", QPrinter::A6 );
 
 	QHBoxLayout * layoutControls = new QHBoxLayout(),
 				* layoutButtons = new QHBoxLayout();
@@ -236,7 +253,7 @@ FormMain::setSenderData()
 void
 FormMain::contactChanged( const QModelIndex & current, const QModelIndex & previous )
 {
-	State = Normal;
+	setStatus( Normal );
 
 	const int row = current.row();
 
@@ -311,10 +328,37 @@ FormMain::print()
 	}
 	*/
 
+	if ( comboPaperSize->count() == 0 )
+		return;
+
+	int e_id = comboPaperSize->itemData( comboPaperSize->currentIndex() ).toInt();
+
+	Envelope & e = envelopes[ e_id ];
+
+	// sizes checking
+	QStringList senderWho = sender->whoList( e.senderWidth() ),
+				senderWhere = sender->whereList( e.senderWidth() ),
+				recipientWho = recipient->whoList( e.recipientWidth() ),
+				recipientWhere = recipient->whereList( e.recipientWidth() );
+
+	if ( ! checkSize( senderWho, e.senderWhoRowCount(), "От кого отправителя" ) ||
+			! checkSize( senderWhere, e.senderWhereRowCount(), "Откуда отправителя" ) ||
+			! checkSize( recipientWho, e.recipientWhoRowCount(), "Кому адресата" ) ||
+			! checkSize( recipientWhere, e.recipientWhereRowCount(), "Куда адресата" ) )
+		return;
+
+	qDebug() << "senderX" << e.senderX() << '\n'
+			<< "senderY" << e.senderY() << '\n'
+			<< "id" << e.id() << '\n'
+			<< "name" << e.name() << '\n'
+			<< "rowHeight" << e.rowHeight() << '\n'
+			<< "senderWidth" << e.senderWidth() << '\n'
+			<< "recipientWidth" << e.recipientWidth() << '\n';
+
 	/// printing ))))
 
 	printer->setOrientation( QPrinter::Portrait );
-	printer->setPaperSize( QPrinter::C5E );
+	printer->setPaperSize( QPrinter::A4 );
 	printer->setResolution( 300 );	// dpi
 
 	QPainter painter;
@@ -326,19 +370,50 @@ FormMain::print()
 	painter.setPen( QPen( Qt::black ) );
 
 	painter.save();			// sender from
-	painter.translate( 465, 1720 );
+	//painter.translate( 470, 1720 );
+	painter.translate( e.senderX(), e.senderY() );
 	painter.rotate( -90 );
 
-	QStringList whoList = sender->whoList( 400 );
+	// who
+	for ( int i = 0; i < senderWho.size() && i < e.senderWhoRowCount(); ++i )
+		painter.drawText( 0, qRound( i * e.rowHeight() ), senderWho[ i ] );
 
-	for ( int i = 0; i < whoList.size(); ++i ) {
-		painter.drawText( 0, 0, whoList[ i ] );
-	}
+	// where
+	for ( int i = 0; i < senderWhere.size() && i < e.senderWhereRowCount(); ++i )
+		painter.drawText( 0, ( i + e.senderWhoRowCount() ) * e.rowHeight(), senderWhere[ i ] );
+
+	// index
+	painter.drawText( e.senderIndexMargin(),
+			( e.senderWhoRowCount() + e.senderWhereRowCount() ) * e.rowHeight() +
+				e.senderIndexTopOffset(),
+			sender->getIndex() );
 
 	painter.restore();
 
+	// recipient data
+	painter.setFont( recipient->addrFont() );
+	painter.setPen( QPen( Qt::black ) );
 
+	painter.save();
+	painter.translate( e.recipientX(), e.recipientY() );
+	painter.rotate( -90 );
 
+	// who
+	for ( int i = 0; i < recipientWho.size() && i < e.recipientWhoRowCount(); ++i )
+		painter.drawText( 0, i * e.rowHeight(), recipientWho[ i ] );
+
+	// where
+	for ( int i = 0; i < recipientWhere.size() && i < e.recipientWhereRowCount(); ++i )
+		painter.drawText( 0, ( i + e.recipientWhoRowCount() ) * e.rowHeight(),
+				recipientWhere[ i ] );
+
+	// index
+	painter.drawText( e.recipientIndexMargin(),
+			( e.recipientWhoRowCount() + e.recipientWhereRowCount() ) * e.rowHeight() +
+				e.recipientIndexTopOffset(),
+			recipient->getIndex() );
+
+	painter.restore();
 }
 
 void
@@ -463,7 +538,9 @@ FormMain::insertContact( const QString & field, const QString & text ) const
 void
 FormMain::addContact()
 {
-	State = NewContact;
+	//State = NewContact;
+	setStatus( NewContact );
+
 	recipient->setAll( "", "", "" );
 	recipient->setWho();
 }
@@ -511,7 +588,10 @@ FormMain::about()
 {
 	QMessageBox::about( this, "О программе",
 			QString("<H3>%1</H3>").arg( qApp->applicationName() ) +
-				"2012 г. ЗАО " + QChar(0xAB) + QString("Нордавиа-РА") + QChar(0xBB) );
+				"2012 г. ЗАО " + QChar(0xAB) + QString("Нордавиа-РА") + QChar(0xBB) + "<BR><BR>" +
+				"e-mail: <A HREF='mailto:masakra@mail.ru'>masakra@mail.ru</A><BR>"
+				"ICQ: 124231040<BR>"
+				"jabber: masakra@jabber.ru" );
 }
 
 void
@@ -557,6 +637,60 @@ FormMain::writeLog() const
 void
 FormMain::setStatus( Status s )
 {
+	switch ( s ) {
+		case Normal:
+			buttonAdd->setEnabled( true );
+			buttonDel->setEnabled( true );
+			break;
+
+		case NewContact:
+			buttonAdd->setEnabled( false );
+			buttonDel->setEnabled( false );
+			break;
+	}
 }
 
+void
+FormMain::loadEnvelopes()
+{
+	QFile file("envelope.conf");
+
+	if ( ! file.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
+		_yell( file.errorString() );
+		return;
+	}
+
+	QTextStream in( &file );
+
+	while ( ! in.atEnd() ) {
+		const QString line = in.readLine().trimmed();
+
+		if ( line[ 0 ] == '#' )
+			continue;
+
+		if ( line.size() == 0 )
+			continue;
+
+		Envelope e( line );
+
+		if ( e.isValid() ) {
+			envelopes[ e.id() ] = e;
+			comboPaperSize->addItem( e.name(), e.id() );
+		}
+	}
+}
+
+bool
+FormMain::checkSize( const QStringList & list, int count, const QString & text )
+{
+	if ( list.size() <= count )
+		return true;
+
+	if ( QMessageBox::warning( this, "Предупреждение",
+				QString("%1 не помещается!\nПродолжить печать?").arg( text ),
+				QMessageBox::Yes | QMessageBox::No, QMessageBox::No ) == QMessageBox::Yes )
+		return true;
+
+	return false;
+}
 

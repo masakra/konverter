@@ -190,6 +190,18 @@ WidgetContact::addrFont() const
 	return addressFont;
 }
 
+const QString &
+WidgetContact::getWho() const
+{
+	return who;
+}
+
+const QString &
+WidgetContact::getIndex() const
+{
+	return index;
+}
+
 QStringList
 WidgetContact::whoList( int w ) const
 {

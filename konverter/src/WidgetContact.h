@@ -67,6 +67,10 @@ class WidgetContact : public QWidget
 
 		const QFont & addrFont() const;
 
+		const QString & getWho() const;
+
+		const QString & getIndex() const;
+
 		QStringList whoList( int w ) const;
 
 		QStringList whereList( int w ) const;
@@ -80,6 +84,8 @@ class WidgetContact : public QWidget
 		void setWho();
 		virtual void setWhere() = 0;
 		virtual void setIndex() = 0;
+
+
 
 	Q_SIGNALS:
 		void whoChanged( const QString & text );

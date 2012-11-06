@@ -4,6 +4,9 @@
 
 #include <QMainWindow>
 
+#include <QHash>
+#include "Envelope.h"
+
 #define FONT_FAMILY "font_family"
 #define FONT_POINT_SIZE "font_point_size"
 #define FONT_WEIGHT "font_weight"
@@ -11,11 +14,13 @@
 
 class QAction;
 class QComboBox;
+class QLabel;
 class QLineEdit;
 class QModelIndex;
 class QPrinter;
 class QSqlQueryModel;
 class QTableView;
+class QToolButton;
 class WidgetRecipient;
 class WidgetSender;
 
@@ -37,6 +42,8 @@ class FormMain : public QMainWindow
 
 		WidgetRecipient * recipient;
 
+		QLabel * labelCount;
+
 		QTableView * table;
 
 		QLineEdit * editFilter;
@@ -44,6 +51,9 @@ class FormMain : public QMainWindow
 		QSqlQueryModel * model;
 
 		QComboBox * comboPaperSize;
+
+		QToolButton * buttonAdd,
+					* buttonDel;
 
 		void setSenderData();
 
@@ -74,6 +84,12 @@ class FormMain : public QMainWindow
 		int currentId() const;
 
 		void writeLog() const;
+
+		void loadEnvelopes();
+
+		QHash< int, Envelope > envelopes;
+
+		bool checkSize( const QStringList & list, int count, const QString & text );
 
 	private Q_SLOTS:
 		void contactChanged( const QModelIndex & current, const QModelIndex & previous );
