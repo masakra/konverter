@@ -18,9 +18,11 @@ class QLabel;
 class QLineEdit;
 class QModelIndex;
 class QPrinter;
+class QSettings;
 class QSqlQueryModel;
 class QTableView;
 class QToolButton;
+class WidgetContact;
 class WidgetRecipient;
 class WidgetSender;
 
@@ -46,11 +48,13 @@ class FormMain : public QMainWindow
 
 		QTableView * table;
 
-		QLineEdit * editFilter;
+		QLineEdit * editIshod,
+				  * editFilter;
 
 		QSqlQueryModel * model;
 
-		QComboBox * comboPaperSize;
+		QComboBox * comboPaperSize,
+				  * comboIshod;
 
 		QToolButton * buttonAdd,
 					* buttonDel;
@@ -61,9 +65,9 @@ class FormMain : public QMainWindow
 
 		void refresh( int id = -1 );
 
-		void setAddressFont( const QFont & f );
-
 		void loadSettings();
+
+		void loadFont( QSettings & settings, WidgetContact * contact, const QString & prefix );
 
 		void createActions();
 
@@ -91,6 +95,12 @@ class FormMain : public QMainWindow
 
 		bool checkSize( const QStringList & list, int count, const QString & text );
 
+		bool printSide( int side );
+
+		QString dataPath() const;
+
+		void saveAddressFont( const QFont & font, const QString & prefix ) const;
+
 	private Q_SLOTS:
 		void contactChanged( const QModelIndex & current, const QModelIndex & previous );
 
@@ -106,6 +116,9 @@ class FormMain : public QMainWindow
 
 		void addContact();
 		void delContact();
+
+		void saveSenderAddressFont( const QFont & font ) const;
+		void saveRecipientAddressFont( const QFont & font ) const;
 
 		void filterChanged( const QString & text );
 

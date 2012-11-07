@@ -13,12 +13,20 @@ class DialogReport : public QDialog
 {
 	Q_OBJECT
 
+	public:
+		enum OrderBy {
+			Who,
+			Number,
+			Time
+		};
+
 	private:
 		void createWidgets();
 
 		QDateTimeEdit * editDate;
 
 		QRadioButton * radioWho,
+					 * radioIshod,
 					 * radioTime;
 
 	public:
@@ -26,7 +34,7 @@ class DialogReport : public QDialog
 
 		QDate date() const;
 
-		bool orderByWho() const;
+		OrderBy orderBy() const;
 };
 
 #endif

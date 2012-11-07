@@ -150,3 +150,10 @@ Envelope::recipientIndexTopOffset() const
 {
 	return recipient.indexTopOffset;
 }
+
+bool
+Envelope::doubleSide() const
+{
+	return e_doubleSide;
+}
+

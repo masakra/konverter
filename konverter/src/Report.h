@@ -8,6 +8,9 @@ class DialogReport;
 
 class Report : public QTextEdit
 {
+	private:
+		void makeReport( const DialogReport & dialog );
+
 	public:
 		Report( QWidget * parent = 0 );
 

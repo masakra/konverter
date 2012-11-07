@@ -28,6 +28,7 @@ WidgetContact::setAddressFont( const QFont & f )
 	cachedRowHeight = 0;
 	cachedSizeHint = QSize( 0, 0 );
 
+	emit addressFontChanged( addressFont );
 
 	//setMinimumSize( 350, sizeHint().height() );
 }
@@ -188,12 +189,6 @@ const QFont &
 WidgetContact::addrFont() const
 {
 	return addressFont;
-}
-
-const QString &
-WidgetContact::getWho() const
-{
-	return who;
 }
 
 const QString &

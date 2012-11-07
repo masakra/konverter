@@ -19,11 +19,14 @@ DialogReport::createWidgets()
 	radioWho = new QRadioButton( "по адресату", this );
 	radioWho->setChecked( true );
 
+	radioIshod = new QRadioButton( "по исходящему", this );
+
 	radioTime = new QRadioButton( "по времени", this );
 
 	QVBoxLayout * layoutOrder = new QVBoxLayout();
 
 	layoutOrder->addWidget( radioWho );
+	layoutOrder->addWidget( radioIshod );
 	layoutOrder->addWidget( radioTime );
 
 	QGroupBox * groupOrder = new QGroupBox( "Сортировать", this );
@@ -49,9 +52,14 @@ DialogReport::date() const
 	return editDate->date();
 }
 
-bool
-DialogReport::orderByWho() const
+DialogReport::OrderBy
+DialogReport::orderBy() const
 {
-	return radioWho->isChecked();
+	if ( radioWho->isChecked() )
+		return Who;
+	else if ( radioIshod->isChecked() )
+		return Number;
+	else
+		return Time;
 }
 

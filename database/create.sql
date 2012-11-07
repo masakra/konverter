@@ -11,7 +11,7 @@ CREATE TABLE contact (
 	touch	TEXT NOT NULL DEFAULT '1990-01-01 00:00:00'
 );
 
-CREATE UNIQUE INDEX "contact_who_idx" ON "contact" ( who );
+----CREATE UNIQUE INDEX "contact_who_idx" ON "contact" ( who );
 
 INSERT INTO contact (
 	id,
@@ -28,6 +28,8 @@ DROP TABLE IF EXISTS log;
 
 CREATE TABLE log (
 	contact_id	INTEGER NOT NULL REFERENCES contact ( id ) ON DELETE CASCADE,
+	num_text	TEXT,
+	num			TEXT,
 	timestamp	TEXT NOT NULL DEFAULT ( "current_timestamp"() )
 );
 

@@ -72,6 +72,8 @@ class Envelope
 		qreal recipientIndexMargin() const;
 
 		qreal recipientIndexTopOffset() const;
+
+		bool doubleSide() const;
 };
 
 #endif

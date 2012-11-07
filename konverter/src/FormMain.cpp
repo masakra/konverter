@@ -9,10 +9,14 @@
 #include "WidgetRecipient.h"
 #include "WidgetSender.h"
 
+#ifdef Q_OS_WIN
+#include "qt_windows.h"
+#endif
+
 FormMain::FormMain( QWidget * parent )
 	: QMainWindow( parent )
 {
-	setWindowTitle( qApp->applicationName() + " " + qApp->applicationVersion() );
+	setWindowTitle( qApp->applicationName() );
 
 	createWidgets();
 
@@ -27,7 +31,9 @@ FormMain::FormMain( QWidget * parent )
 
 	QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");	// sqlite3 database
 
-	db.setDatabaseName( qApp->applicationName() + ".db" );
+	db.setDatabaseName( dataPath() + qApp->applicationName() + ".db" );
+
+	//qDebug() << dataPath() + qApp->applicationName() + ".db";
 
 	if ( db.open() ) {
 		setSenderData();
@@ -52,7 +58,6 @@ FormMain::createModel()
 void
 FormMain::refresh( int id )
 {
-	//State = Normal;
 	setStatus( Normal );
 
 	model->setQuery( QString("SELECT "
@@ -113,12 +118,12 @@ FormMain::createWidgets()
 
 	connect( sender, SIGNAL( whoChanged( const QString & ) ),
 			SLOT( modifySenderWho( const QString & ) ) );
-
 	connect( sender, SIGNAL( whereChanged( const QString & ) ),
 			SLOT( modifySenderWhere( const QString & ) ) );
-
 	connect( sender, SIGNAL( indexChanged( const QString & ) ),
 			SLOT( modifySenderIndex( const QString & ) ) );
+	connect( sender, SIGNAL( addressFontChanged( const QFont & ) ),
+			SLOT( saveSenderAddressFont( const QFont & ) ) );
 
 	labelCount = new QLabel( centralWidget );
 
@@ -175,12 +180,19 @@ FormMain::createWidgets()
 
 	connect( buttonPrint, SIGNAL( clicked() ), SLOT( print() ) );
 
-	comboPaperSize = new QComboBox( this );
+	comboPaperSize = new QComboBox( centralWidget );
+
+	comboIshod = new QComboBox( centralWidget );
+	comboIshod->addItem( "Исходящий", QString("Исх. %1").arg( QChar( 0x2116 ) ) );
+	comboIshod->addItem( "Счёт-фактура", "с/ф" );
+
+	editIshod = new QLineEdit( centralWidget );
 	//comboPaperSize->addItem( "C5E - 163 x 229 мм.", QPrinter::C5E );
 	//comboPaperSize->addItem( "DLE - 110 x 220 мм.", QPrinter::DLE );
 	//comboPaperSize->addItem( "Уведомление - 100 x 145 мм.", QPrinter::A6 );
 
 	QHBoxLayout * layoutControls = new QHBoxLayout(),
+				* layoutIshod = new QHBoxLayout(),
 				* layoutButtons = new QHBoxLayout();
 
 	layoutControls->setMargin( 15 );
@@ -191,18 +203,21 @@ FormMain::createWidgets()
 	layoutControls->addStretch();
 	layoutControls->addWidget( buttonPrint );
 
-	QGridLayout * gridLayout = new QGridLayout( centralWidget );
+	layoutIshod->addStretch();
+	layoutIshod->addWidget( comboIshod );
+	layoutIshod->addWidget( editIshod );
+	layoutIshod->addStretch();
 
 	recipient = new WidgetRecipient( centralWidget );
 
 	connect( recipient, SIGNAL( whoChanged( const QString & ) ),
 			SLOT( modifyRecipientWho( const QString & ) ) );
-
 	connect( recipient, SIGNAL( whereChanged( const QString & ) ),
 			SLOT( modifyRecipientWhere( const QString & ) ) );
-
 	connect( recipient, SIGNAL( indexChanged( const QString & ) ),
 			SLOT( modifyRecipientIndex( const QString & ) ) );
+	connect( recipient, SIGNAL( addressFontChanged( const QFont & ) ),
+			SLOT( saveRecipientAddressFont( const QFont & ) ) );
 
 	layoutButtons->addStretch();
 	layoutButtons->addWidget( buttonAdd );
@@ -212,13 +227,17 @@ FormMain::createWidgets()
 	layoutButtons->addWidget( buttonAbout );
 	layoutButtons->addStretch();
 
-	gridLayout->addWidget( sender, 0, 0 );
+	QGridLayout * gridLayout = new QGridLayout( centralWidget );
+
+	gridLayout->addWidget( sender, 0, 0, 2, 1 );
 	gridLayout->addLayout( layoutControls, 0, 1, 1, 1, Qt::AlignTop );
 
-	gridLayout->addLayout( layoutTable, 1, 0, 2, 1 );
-	gridLayout->addWidget( recipient, 1, 1 );
+	gridLayout->addLayout( layoutIshod, 1, 1 );
 
-	gridLayout->addLayout( layoutButtons, 2, 1 );
+	gridLayout->addLayout( layoutTable, 2, 0, 2, 1 );
+	gridLayout->addWidget( recipient, 2, 1 );
+
+	gridLayout->addLayout( layoutButtons, 3, 1 );
 
 	setCentralWidget( centralWidget );
 }
@@ -251,13 +270,11 @@ FormMain::setSenderData()
 }
 
 void
-FormMain::contactChanged( const QModelIndex & current, const QModelIndex & previous )
+FormMain::contactChanged( const QModelIndex & current, const QModelIndex & )
 {
 	setStatus( Normal );
 
 	const int row = current.row();
-
-	const int id = model->index( row, 0 ).data().toInt();
 
 	const QString who = model->index( row, 1 ).data().toString(),
 				  where = model->index( row, 2 ).data().toString(),
@@ -267,17 +284,14 @@ FormMain::contactChanged( const QModelIndex & current, const QModelIndex & previ
 }
 
 void
-FormMain::setAddressFont( const QFont & f )
-{
-	sender->setAddressFont( f );
-	recipient->setAddressFont( f );
-}
-
-void
 FormMain::loadSettings()
 {
 	QSettings s;
 
+	loadFont( s, sender, "sender" );
+	loadFont( s, recipient, "recipient" );
+
+	/*
 	const QString font_family = s.value( FONT_FAMILY,
 #ifdef Q_OS_WIN32
 			"Times"
@@ -292,6 +306,27 @@ FormMain::loadSettings()
 	const bool font_italic = s.value( FONT_ITALIC, true ).toBool();
 
 	setAddressFont( QFont( font_family, font_point_size, font_weight, font_italic ) );
+	*/
+}
+
+void
+FormMain::loadFont( QSettings & settings, WidgetContact * contact, const QString & prefix )
+{
+	const QString key = prefix + "_font_";
+
+	QFont font( settings.value( key + "family",
+#ifdef Q_OS_WIN32
+			"Times"
+#else
+			"Droid Serif"
+#endif
+				).toString() );
+
+	font.setPointSize( settings.value( key + "size", 12 ).toInt() );
+	font.setBold( settings.value( key + "bold", false ).toBool() );
+	font.setItalic( settings.value( key + "italic", true ).toBool() );
+
+	contact->setAddressFont( font );
 }
 
 void
@@ -307,33 +342,34 @@ FormMain::print()
 			return;
 	}
 
-	/// printing
-
-	const QPrinter::PaperSize paperSize = printer->paperSize();
-
-	qDebug() << printer->paperSize() << QPrinter::C5E << QPrinter::DLE;
-
-	/*
-	if ( paperSize != QPrinter::C5E || paperSize != QPrinter::DLE ) {
-		QMessageBox::information( this, "К сведению", "Поддерживаемые форматы:<BR><BR>"
-				"1. <B>C5E</B> - 163 x 229 мм.<BR>"
-				"2. <B>DLE</B> - 110 x 220 мм.<BR><BR>"
-				"Для реализации поддержки других форматов<BR>"
-				"обратитесь к разработчику:<BR><BR>"
-				"email: <A HREF='mailto:masakra@mail.ru'>masakra@mail.ru</A><BR>"
-				"ICQ: 124321040<BR>"
-				"jabber: masakra@jabber.ru");
-
-		return;
+	if ( editIshod->text().trimmed().isEmpty() ) {
+		if ( QMessageBox::warning( this, "Предупреждение",
+				"Не заполнено поле " + comboIshod->currentText() +
+				".\nПродолжить?",
+				QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes ) == QMessageBox::No )
+			return;
 	}
-	*/
 
 	if ( comboPaperSize->count() == 0 )
 		return;
 
+	writeLog();
+
+	if ( printSide( 1 ) ) {
+
+		if ( QMessageBox::information( this, "Вторая сторона",
+				"Печать второй стороны.",
+				QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes ) == QMessageBox::Yes )
+			printSide( 2 );
+	}
+}
+
+bool
+FormMain::printSide( int side )
+{
 	int e_id = comboPaperSize->itemData( comboPaperSize->currentIndex() ).toInt();
 
-	Envelope & e = envelopes[ e_id ];
+	const Envelope & e = envelopes[ e_id ];
 
 	// sizes checking
 	QStringList senderWho = sender->whoList( e.senderWidth() ),
@@ -345,81 +381,97 @@ FormMain::print()
 			! checkSize( senderWhere, e.senderWhereRowCount(), "Откуда отправителя" ) ||
 			! checkSize( recipientWho, e.recipientWhoRowCount(), "Кому адресата" ) ||
 			! checkSize( recipientWhere, e.recipientWhereRowCount(), "Куда адресата" ) )
-		return;
-
-	qDebug() << "senderX" << e.senderX() << '\n'
-			<< "senderY" << e.senderY() << '\n'
-			<< "id" << e.id() << '\n'
-			<< "name" << e.name() << '\n'
-			<< "rowHeight" << e.rowHeight() << '\n'
-			<< "senderWidth" << e.senderWidth() << '\n'
-			<< "recipientWidth" << e.recipientWidth() << '\n';
+		return false;
 
 	/// printing ))))
-
-	printer->setOrientation( QPrinter::Portrait );
-	printer->setPaperSize( QPrinter::A4 );
-	printer->setResolution( 300 );	// dpi
 
 	QPainter painter;
 
 	painter.begin( printer );
 
-	// sender data
-	painter.setFont( sender->addrFont() );
-	painter.setPen( QPen( Qt::black ) );
+	if ( ! e.doubleSide() || side == 1 ) {
 
-	painter.save();			// sender from
-	//painter.translate( 470, 1720 );
-	painter.translate( e.senderX(), e.senderY() );
-	painter.rotate( -90 );
+		// sender data
+		painter.setFont( sender->addrFont() );
+		painter.setPen( QPen( Qt::black ) );
 
-	// who
-	for ( int i = 0; i < senderWho.size() && i < e.senderWhoRowCount(); ++i )
-		painter.drawText( 0, qRound( i * e.rowHeight() ), senderWho[ i ] );
+		painter.save();			// sender from
+		//painter.translate( 470, 1720 );
+		painter.translate( e.senderX(), e.senderY() );
+		painter.rotate( -90 );
 
-	// where
-	for ( int i = 0; i < senderWhere.size() && i < e.senderWhereRowCount(); ++i )
-		painter.drawText( 0, ( i + e.senderWhoRowCount() ) * e.rowHeight(), senderWhere[ i ] );
+		// who
+		for ( int i = 0; i < senderWho.size() && i < e.senderWhoRowCount(); ++i )
+			painter.drawText( 0, qRound( i * e.rowHeight() ), senderWho[ i ] );
 
-	// index
-	painter.drawText( e.senderIndexMargin(),
-			( e.senderWhoRowCount() + e.senderWhereRowCount() ) * e.rowHeight() +
-				e.senderIndexTopOffset(),
-			sender->getIndex() );
+		// where
+		for ( int i = 0; i < senderWhere.size() && i < e.senderWhereRowCount(); ++i )
+			painter.drawText( 0, ( i + e.senderWhoRowCount() ) * e.rowHeight(), senderWhere[ i ] );
 
-	painter.restore();
+		// исходящий
+		QString ishod = editIshod->text().trimmed();
 
-	// recipient data
-	painter.setFont( recipient->addrFont() );
-	painter.setPen( QPen( Qt::black ) );
+		if ( ! ishod.isEmpty() ) {
+			ishod.prepend(" ").prepend( comboIshod->itemData( comboIshod->currentIndex() ).toString() );
 
-	painter.save();
-	painter.translate( e.recipientX(), e.recipientY() );
-	painter.rotate( -90 );
+			painter.drawText( 0,
+					( e.senderWhoRowCount() + e.senderWhereRowCount() ) * e.rowHeight(),
+					ishod );
 
-	// who
-	for ( int i = 0; i < recipientWho.size() && i < e.recipientWhoRowCount(); ++i )
-		painter.drawText( 0, i * e.rowHeight(), recipientWho[ i ] );
+			editIshod->clear();
+		}
 
-	// where
-	for ( int i = 0; i < recipientWhere.size() && i < e.recipientWhereRowCount(); ++i )
-		painter.drawText( 0, ( i + e.recipientWhoRowCount() ) * e.rowHeight(),
-				recipientWhere[ i ] );
+		// index
+		painter.drawText( e.senderIndexMargin(),
+				( e.senderWhoRowCount() + e.senderWhereRowCount() ) * e.rowHeight() +
+					e.senderIndexTopOffset(),
+				sender->getIndex() );
 
-	// index
-	painter.drawText( e.recipientIndexMargin(),
-			( e.recipientWhoRowCount() + e.recipientWhereRowCount() ) * e.rowHeight() +
-				e.recipientIndexTopOffset(),
-			recipient->getIndex() );
+		painter.restore();
+	}
 
-	painter.restore();
+	if ( ! e.doubleSide() || side == 2 ) {
+		// recipient data
+		painter.setFont( recipient->addrFont() );
+		painter.setPen( QPen( Qt::black ) );
+
+		painter.save();
+		painter.translate( e.recipientX(), e.recipientY() );
+		painter.rotate( -90 );
+
+		// who
+		for ( int i = 0; i < recipientWho.size() && i < e.recipientWhoRowCount(); ++i )
+			painter.drawText( 0, i * e.rowHeight(), recipientWho[ i ] );
+
+		// where
+		for ( int i = 0; i < recipientWhere.size() && i < e.recipientWhereRowCount(); ++i )
+			painter.drawText( 0, ( i + e.recipientWhoRowCount() ) * e.rowHeight(),
+					recipientWhere[ i ] );
+
+		// index
+		painter.drawText( e.recipientIndexMargin(),
+				( e.recipientWhoRowCount() + e.recipientWhereRowCount() ) * e.rowHeight() +
+					e.recipientIndexTopOffset(),
+				recipient->getIndex() );
+
+		painter.restore();
+	}
+
+	if ( e.doubleSide() && side == 1 )
+		return true;
+	else
+		return false;
 }
 
 void
 FormMain::createPrinter()
 {
 	printer = new QPrinter( QPrinter::HighResolution );
+
+	printer->setOrientation( QPrinter::Portrait );
+	printer->setPaperSize( QPrinter::A4 );
+	printer->setResolution( 300 );	// dpi
+
 }
 
 void
@@ -515,7 +567,7 @@ FormMain::insertContact( const QString & field, const QString & text ) const
 		sql += "'', '', :text";
 	else {
 		_yell( QString("Неизвестное поле: %1").arg( field ) );
-		return;
+		return -1;
 	}
 
 	q.prepare( sql + ")" );
@@ -587,7 +639,7 @@ void
 FormMain::about()
 {
 	QMessageBox::about( this, "О программе",
-			QString("<H3>%1</H3>").arg( qApp->applicationName() ) +
+			QString("<H3>%1 v.%2</H3>").arg( qApp->applicationName(), qApp->applicationVersion() ) +
 				"2012 г. ЗАО " + QChar(0xAB) + QString("Нордавиа-РА") + QChar(0xBB) + "<BR><BR>" +
 				"e-mail: <A HREF='mailto:masakra@mail.ru'>masakra@mail.ru</A><BR>"
 				"ICQ: 124231040<BR>"
@@ -595,7 +647,7 @@ FormMain::about()
 }
 
 void
-FormMain::filterChanged( const QString & text )
+FormMain::filterChanged( const QString & /*text*/ )
 {
 	refresh( currentId() );
 }
@@ -607,6 +659,7 @@ FormMain::report()
 
 	if ( d.exec() ) {
 		Report * rep = new Report();
+		rep->resize( 600, 450 );
 		rep->show( d );
 	}
 }
@@ -624,11 +677,17 @@ FormMain::writeLog() const
 	QSqlQuery q;
 
 	q.prepare("INSERT INTO log ("
-			"contact_id "
+			"contact_id, "
+			"num_text, "
+			"num "
 		") VALUES ("
-			":id )");
+			":id, "
+			":numt, "
+			":num )");
 
 	q.bindValue(":id", id );
+	q.bindValue(":numt", comboIshod->itemData( comboIshod->currentIndex() ).toString() );
+	q.bindValue(":num", editIshod->text().trimmed() );
 
 	if ( ! q.exec() )
 		_yell( q );
@@ -653,7 +712,7 @@ FormMain::setStatus( Status s )
 void
 FormMain::loadEnvelopes()
 {
-	QFile file("envelope.conf");
+	QFile file( dataPath() + "envelope.conf");
 
 	if ( ! file.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
 		_yell( file.errorString() );
@@ -695,3 +754,64 @@ FormMain::checkSize( const QStringList & list, int count, const QString & text )
 	return false;
 }
 
+void
+FormMain::saveSenderAddressFont( const QFont & font ) const
+{
+	saveAddressFont( font, "sender" );
+}
+
+void
+FormMain::saveRecipientAddressFont( const QFont & font ) const
+{
+	saveAddressFont( font, "recipient" );
+}
+
+void
+FormMain::saveAddressFont( const QFont & font, const QString & prefix ) const
+{
+	const QString key = prefix + "_font_";
+
+	QSettings s;
+
+	s.setValue( key + "family", font.family() );
+	s.setValue( key + "size", font.pointSize() );
+	s.setValue( key + "bold", font.bold() );
+	s.setValue( key + "italic", font.italic() );
+}
+
+QString
+FormMain::dataPath() const
+{
+#ifdef Q_WS_WIN
+	// находит SysDrive:\Document And Settings\All Users\Application Data
+
+	QString winMapPath;
+
+	QLibrary library( QLatin1String( "shell32" ) );
+
+	QT_WA ( {
+			typedef BOOL ( WINAPI * GetSpecialFolderPath )( HWND, LPTSTR, int, BOOL );
+			GetSpecialFolderPath SHGetSpecialFolderPath = ( GetSpecialFolderPath )library.resolve("SHGetSpecialFolderPathW");
+			if ( SHGetSpecialFolderPath ) {
+				TCHAR path[ MAX_PATH ];
+				SHGetSpecialFolderPath( 0, path, 0x0023, FALSE );
+				winMapPath = QString::fromUtf16( ( ushort* )path );
+			}
+	} , {
+			typedef BOOL ( WINAPI * GetSpecialFolderPath)( HWND, char*, int, BOOL );
+			GetSpecialFolderPath SHGetSpecialFolderPath = ( GetSpecialFolderPath )library.resolve("SHGetSpecialFolderPathA");
+			if ( SHGetSpecialFolderPath ) {
+				char path[ MAX_PATH ];
+				SHGetSpecialFolderPath( 0, path 0x0023, FALSE );
+				winMapPath = QString::fromLocal8Bit( path );
+			}
+	} );
+
+	return winMapPath + QDir::separator() +
+		qApp->applicationName() + QDir::separator();
+#else
+
+	return qApp->applicationDirPath() + QDir::separator() + ".." +
+		QDir::separator();
+#endif
+}
