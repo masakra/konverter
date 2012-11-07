@@ -16,7 +16,7 @@ WidgetRecipient::WidgetRecipient( QWidget * parent )
 QSize
 WidgetRecipient::sizeHint() const
 {
-	return QSize( 400, 300 );
+	return QSize( 400, 220 );
 }
 
 void

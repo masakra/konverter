@@ -134,6 +134,7 @@ FormMain::createWidgets()
 	table->setSelectionBehavior( QAbstractItemView::SelectRows );
 	table->setSelectionMode( QAbstractItemView::SingleSelection );
 	table->setAlternatingRowColors( true );
+	table->resize( 300, 100 );
 
 	editFilter = new QLineEdit( centralWidget );
 
@@ -157,18 +158,23 @@ FormMain::createWidgets()
 
 	buttonPrint->setIconSize( QSize( 97, 61 ) );
 	buttonPrint->setIcon( QIcon(":/postmark.png") );
+	buttonPrint->setToolTip( "Печать, c Ctrl - выбор принтера" );
 
 	buttonAdd->setIconSize( QSize( 48, 48 ) );
 	buttonAdd->setIcon( QIcon(":/add.png") );
+	buttonAdd->setToolTip( "Добавить контакт" );
 
 	buttonDel->setIconSize( QSize( 48, 48 ) );
 	buttonDel->setIcon( QIcon(":/delete.png") );
+	buttonDel->setToolTip( "Удалить контакт" );
 
 	buttonReport->setIconSize( QSize( 48, 48 ) );
 	buttonReport->setIcon( QIcon( ":/report.png") );
+	buttonReport->setToolTip( "Сформировать реестр за дату" );
 
 	buttonAbout->setIconSize( QSize( 48, 48 ) );
 	buttonAbout->setIcon( qApp->windowIcon() );
+	buttonAbout->setToolTip( "О программе" );
 
 	connect( buttonAdd, SIGNAL( clicked() ), SLOT( addContact() ) );
 
@@ -696,6 +702,11 @@ FormMain::writeLog() const
 void
 FormMain::setStatus( Status s )
 {
+	if ( State == s )
+		return;
+
+	State = s;
+
 	switch ( s ) {
 		case Normal:
 			buttonAdd->setEnabled( true );
