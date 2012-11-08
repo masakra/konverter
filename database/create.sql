@@ -30,6 +30,7 @@ CREATE TABLE log (
 	contact_id	INTEGER NOT NULL REFERENCES contact ( id ) ON DELETE CASCADE,
 	num_text	TEXT,
 	num			TEXT,
+	zakaz		INTEGER NOT NULL DEFAULT 0,
 	timestamp	TEXT NOT NULL DEFAULT ( "current_timestamp"() )
 );
 

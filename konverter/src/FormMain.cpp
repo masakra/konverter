@@ -6,6 +6,7 @@
 #include "_.h"
 #include "DialogReport.h"
 #include "Report.h"
+#include "SqlQueryModel.h"
 #include "WidgetRecipient.h"
 #include "WidgetSender.h"
 
@@ -22,7 +23,6 @@ FormMain::FormMain( QWidget * parent )
 
 	createActions();
 
-	//createToolBar();
 	createPrinter();
 
 	loadSettings();
@@ -32,8 +32,6 @@ FormMain::FormMain( QWidget * parent )
 	QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");	// sqlite3 database
 
 	db.setDatabaseName( dataPath() + qApp->applicationName() + ".db" );
-
-	//qDebug() << dataPath() + qApp->applicationName() + ".db";
 
 	if ( db.open() ) {
 		setSenderData();
@@ -50,7 +48,9 @@ FormMain::~FormMain()
 void
 FormMain::createModel()
 {
-	model = new QSqlQueryModel( this );
+	model = new SqlQueryModel( this );
+
+	connect( model, SIGNAL( fetchedMore( int ) ), SLOT( setCount( int ) ) );
 
 	refresh();
 }
@@ -72,7 +72,8 @@ FormMain::refresh( int id )
 			"%1 "
 		"ORDER BY "
 			"touch DESC ")
-			.arg( editFilter->text().isEmpty() ? "": QString("AND who like '%%1%'").arg( editFilter->text() ) ) );
+			.arg( editFilter->text().isEmpty() ? "":
+				QString("AND UPPER( who ) like UPPER( '%%1%' )").arg( editFilter->text() ) ) );
 
 	table->setModel( model );
 	table->hideColumn( 0 );
@@ -81,8 +82,6 @@ FormMain::refresh( int id )
 
 	connect( table->selectionModel(), SIGNAL( currentChanged( const QModelIndex &, const QModelIndex & ) ),
 				SLOT( contactChanged( const QModelIndex &, const QModelIndex & ) ) );
-
-	labelCount->setText( QString("записей: %1").arg( model->rowCount() ) );
 
 	if ( id != -1 ) {
 		for ( int i = 0; i < model->rowCount(); ++i ) {
@@ -151,8 +150,6 @@ FormMain::createWidgets()
 	buttonDel = new QToolButton( centralWidget );
 
 	QToolButton * buttonPrint = new QToolButton( centralWidget ),
-				//* buttonAdd = new QToolButton( centralWidget ),
-				//* buttonDel = new QToolButton( centralWidget ),
 				* buttonReport = new QToolButton( centralWidget ),
 				* buttonAbout = new QToolButton( centralWidget );
 
@@ -193,9 +190,8 @@ FormMain::createWidgets()
 	comboIshod->addItem( "Счёт-фактура", "с/ф" );
 
 	editIshod = new QLineEdit( centralWidget );
-	//comboPaperSize->addItem( "C5E - 163 x 229 мм.", QPrinter::C5E );
-	//comboPaperSize->addItem( "DLE - 110 x 220 мм.", QPrinter::DLE );
-	//comboPaperSize->addItem( "Уведомление - 100 x 145 мм.", QPrinter::A6 );
+
+	checkZakaz = new QCheckBox( "&заказное", centralWidget );
 
 	QHBoxLayout * layoutControls = new QHBoxLayout(),
 				* layoutIshod = new QHBoxLayout(),
@@ -212,6 +208,7 @@ FormMain::createWidgets()
 	layoutIshod->addStretch();
 	layoutIshod->addWidget( comboIshod );
 	layoutIshod->addWidget( editIshod );
+	layoutIshod->addWidget( checkZakaz );
 	layoutIshod->addStretch();
 
 	recipient = new WidgetRecipient( centralWidget );
@@ -290,29 +287,23 @@ FormMain::contactChanged( const QModelIndex & current, const QModelIndex & )
 }
 
 void
+FormMain::setCount( int rows )
+{
+	QString s( "записей: " );
+
+	if ( model->canFetchMore() )
+		s += "более ";
+
+	labelCount->setText( s += QString::number( rows ) );
+}
+
+void
 FormMain::loadSettings()
 {
 	QSettings s;
 
 	loadFont( s, sender, "sender" );
 	loadFont( s, recipient, "recipient" );
-
-	/*
-	const QString font_family = s.value( FONT_FAMILY,
-#ifdef Q_OS_WIN32
-			"Times"
-#else
-			"Droid Serif"
-#endif
-			).toString();
-
-	const int font_point_size = s.value( FONT_POINT_SIZE, 10 ).toInt(),
-		      font_weight = s.value( FONT_WEIGHT, QFont::Normal ).toInt();
-
-	const bool font_italic = s.value( FONT_ITALIC, true ).toBool();
-
-	setAddressFont( QFont( font_family, font_point_size, font_weight, font_italic ) );
-	*/
 }
 
 void
@@ -389,7 +380,7 @@ FormMain::printSide( int side )
 			! checkSize( recipientWhere, e.recipientWhereRowCount(), "Куда адресата" ) )
 		return false;
 
-	/// printing ))))
+	/// printing
 
 	QPainter painter;
 
@@ -414,7 +405,7 @@ FormMain::printSide( int side )
 		for ( int i = 0; i < senderWhere.size() && i < e.senderWhereRowCount(); ++i )
 			painter.drawText( 0, ( i + e.senderWhoRowCount() ) * e.rowHeight(), senderWhere[ i ] );
 
-		// исходящий
+		// исходящий номер
 		QString ishod = editIshod->text().trimmed();
 
 		if ( ! ishod.isEmpty() ) {
@@ -425,6 +416,7 @@ FormMain::printSide( int side )
 					ishod );
 
 			editIshod->clear();
+			checkZakaz->setChecked( false );
 		}
 
 		// index
@@ -534,16 +526,6 @@ void
 FormMain::modifyRecipientWho( const QString & text )
 {
 	modifyRecipient( "who", text );
-	/*
-	if ( State == NewContact ) {
-		const int newId = insertContact( "who", text );
-		refresh( newId );
-	} else {
-		const int id = currentId();
-		modifyContact( "who", text, id );
-		refresh( id );
-	}
-	*/
 }
 
 void
@@ -596,7 +578,6 @@ FormMain::insertContact( const QString & field, const QString & text ) const
 void
 FormMain::addContact()
 {
-	//State = NewContact;
 	setStatus( NewContact );
 
 	recipient->setAll( "", "", "" );
@@ -615,7 +596,7 @@ FormMain::delContact()
 
 	QSqlQuery q;
 
-	// TODO удалить все записи из журнала
+	// TODO удалить все записи из журнала, или не надо, ON DELETE CASCADE, проверить
 
 	q.prepare("DELETE FROM "
 				"contact "
@@ -673,9 +654,7 @@ FormMain::report()
 void
 FormMain::writeLog() const
 {
-
 	const int id = currentId();
-
 
 	if ( id == -1 )
 		return;
@@ -685,15 +664,18 @@ FormMain::writeLog() const
 	q.prepare("INSERT INTO log ("
 			"contact_id, "
 			"num_text, "
-			"num "
+			"num, "
+			"zakaz "
 		") VALUES ("
 			":id, "
 			":numt, "
-			":num )");
+			":num, "
+			":zak )");
 
 	q.bindValue(":id", id );
 	q.bindValue(":numt", comboIshod->itemData( comboIshod->currentIndex() ).toString() );
 	q.bindValue(":num", editIshod->text().trimmed() );
+	q.bindValue(":zak", checkZakaz->isChecked() ? 1 : 0 );
 
 	if ( ! q.exec() )
 		_yell( q );
@@ -826,3 +808,4 @@ FormMain::dataPath() const
 		QDir::separator();
 #endif
 }
+

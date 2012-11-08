@@ -34,7 +34,7 @@ WidgetSender::sizeHint() const
 }
 
 void
-WidgetSender::paintEvent( QPaintEvent * event )
+WidgetSender::paintEvent( QPaintEvent * /*event*/ )
 {
 	QPainter painter( this );
 

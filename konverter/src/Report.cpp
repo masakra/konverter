@@ -29,12 +29,13 @@ Report::makeReport( const DialogReport & dialog )
 	QString text = QString("<H3><I>Реестр за %1</I></H3>")
 		.arg( dialog.date().toString("dd.MM.yyyy") );
 
-	text += "<TABLE CELLSPACING=1 CELLPADDING=7 BGCOLOR=lightskyblue>"
+	text += QString("<TABLE CELLSPACING=1 CELLPADDING=7 BGCOLOR=%1>"
 			  "<TR>"
-			    "<TH BGCOLOR=paleturquoise>Адресат</TH>"
-				"<TH BGCOLOR=paleturquoise>Исх. / с/ф</TH>"
-				"<TH BGCOLOR=paleturquoise>Время</TH>"
-			  "</TR>";
+			    "<TH BGCOLOR=%2>Адресат</TH>"
+				"<TH BGCOLOR=%2>Исх. / с/ф</TH>"
+				"<TH BGCOLOR=%2>Время</TH>"
+				"<TH BGCOLOR=%2>Прим.</TH>"
+			  "</TR>").arg( "lightskyblue", "paleturquoise" );
 
 	QString orderColumn;
 
@@ -57,7 +58,8 @@ Report::makeReport( const DialogReport & dialog )
 			"c.who, "
 			"l.num_text, "
 			"l.num, "
-			"substr( l.timestamp, 12 ) "
+			"substr( l.timestamp, 12 ), "
+			"zakaz "
 		"FROM "
 			"log l "
 		"INNER JOIN "
@@ -88,6 +90,10 @@ Report::makeReport( const DialogReport & dialog )
 
 			  text += QString("<TD BGCOLOR=%1>").arg( bgcolor );
 			  text += q.value( 3 ).toString();
+			  text += "</TD>";
+
+			  text += QString("<TD BGCOLOR=%1>").arg( bgcolor );
+			  text += ( q.value( 4 ).toInt() == 1 ? "заказное" : "" );
 			  text += "</TD>";
 
 			text += "</TR>";

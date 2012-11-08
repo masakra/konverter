@@ -13,15 +13,16 @@
 #define FONT_ITALIC "font_italic"
 
 class QAction;
+class QCheckBox;
 class QComboBox;
 class QLabel;
 class QLineEdit;
 class QModelIndex;
 class QPrinter;
 class QSettings;
-class QSqlQueryModel;
 class QTableView;
 class QToolButton;
+class SqlQueryModel;
 class WidgetContact;
 class WidgetRecipient;
 class WidgetSender;
@@ -44,6 +45,7 @@ class FormMain : public QMainWindow
 
 		WidgetRecipient * recipient;
 
+
 		QLabel * labelCount;
 
 		QTableView * table;
@@ -51,7 +53,9 @@ class FormMain : public QMainWindow
 		QLineEdit * editIshod,
 				  * editFilter;
 
-		QSqlQueryModel * model;
+		QCheckBox * checkZakaz;
+
+		SqlQueryModel * model;
 
 		QComboBox * comboPaperSize,
 				  * comboIshod;
@@ -103,6 +107,8 @@ class FormMain : public QMainWindow
 
 	private Q_SLOTS:
 		void contactChanged( const QModelIndex & current, const QModelIndex & previous );
+
+		void setCount( int rows );
 
 		void print();
 

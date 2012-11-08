@@ -20,7 +20,7 @@ WidgetRecipient::sizeHint() const
 }
 
 void
-WidgetRecipient::paintEvent( QPaintEvent * event )
+WidgetRecipient::paintEvent( QPaintEvent * /*event*/ )
 {
 	QPainter painter( this );
 

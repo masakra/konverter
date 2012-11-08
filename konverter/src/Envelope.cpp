@@ -14,8 +14,8 @@ Envelope::Envelope( const QString & line )
 {
 	QStringList list = line.split( "|", QString::SkipEmptyParts );
 
-	if ( list.size() != 17 ) {
-		_yell( "Количество параметров конверта должно быть 17" );
+	if ( list.size() != 18 ) {
+		_yell( "Количество параметров конверта должно быть 18" );
 		return;
 	}
 
@@ -29,16 +29,17 @@ Envelope::Envelope( const QString & line )
 	sender.whoRowCount = list[ 6 ].trimmed().toInt();
 	sender.whereRowCount = list[ 7 ].trimmed().toInt();
 	sender.indexMargin = list[ 8 ].trimmed().toDouble();
+	sender.indexTopOffset = list[ 9 ].trimmed().toDouble();
 
-	recipient.x = list[ 9 ].trimmed().toDouble();
-	recipient.y = list[ 10 ].trimmed().toDouble();
-	recipient.width = list[ 11 ].trimmed().toDouble();
-	recipient.whoRowCount = list[ 12 ].trimmed().toInt();
-	recipient.whereRowCount = list[ 13 ].trimmed().toInt();
-	recipient.indexMargin = list[ 14 ].trimmed().toDouble();
-	recipient.indexTopOffset = list[ 15 ].trimmed().toDouble();
+	recipient.x = list[ 10 ].trimmed().toDouble();
+	recipient.y = list[ 11 ].trimmed().toDouble();
+	recipient.width = list[ 12 ].trimmed().toDouble();
+	recipient.whoRowCount = list[ 13 ].trimmed().toInt();
+	recipient.whereRowCount = list[ 14 ].trimmed().toInt();
+	recipient.indexMargin = list[ 15 ].trimmed().toDouble();
+	recipient.indexTopOffset = list[ 16 ].trimmed().toDouble();
 
-	e_doubleSide = ( list[ 16 ].trimmed().toInt() == 1 );
+	e_doubleSide = ( list[ 17 ].trimmed().toInt() == 1 );
 
 	valid = true;
 }
