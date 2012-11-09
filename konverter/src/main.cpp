@@ -38,7 +38,7 @@ main( int argc, char ** argv )
 	QApplication app( argc, argv );
 
 	app.setApplicationName( "konverter" );
-	app.setApplicationVersion( "0.1.1" );
+	app.setApplicationVersion( "0.1.2" );
 	app.setOrganizationName( "Nordavia-RA" );
 	app.setWindowIcon( QIcon(":/main.png") );
 
