@@ -127,11 +127,13 @@ class FormMain : public QMainWindow
 
 		bool checkSize( const QStringList & list, int count, const QString & text );
 
-		bool printSide( int side );
+		bool printSide( const Envelope & e, int side );
 
 		QString dataPath() const;
 
 		void saveAddressFont( const QFont & font, const QString & prefix ) const;
+
+		void saveEnvelopeType() const;
 
 	private Q_SLOTS:
 		void contactChanged( const QModelIndex & current, const QModelIndex & previous );

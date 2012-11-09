@@ -42,8 +42,8 @@ Envelope::Envelope( const QString & line )
 {
 	QStringList list = line.split( "|", QString::SkipEmptyParts );
 
-	if ( list.size() != 18 ) {
-		_yell( "Количество параметров конверта должно быть 18" );
+	if ( list.size() != 19 ) {
+		_yell( "Количество параметров конверта должно быть 19" );
 		return;
 	}
 
@@ -68,6 +68,8 @@ Envelope::Envelope( const QString & line )
 	recipient.indexTopOffset = list[ 16 ].trimmed().toDouble();
 
 	e_doubleSide = ( list[ 17 ].trimmed().toInt() == 1 );
+
+	e_log = ( list[ 18 ].trimmed().toInt() == 1 );
 
 	valid = true;
 }
@@ -184,5 +186,11 @@ bool
 Envelope::doubleSide() const
 {
 	return e_doubleSide;
+}
+
+bool
+Envelope::log() const
+{
+	return e_log;
 }
 

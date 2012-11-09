@@ -61,6 +61,8 @@ class Envelope
 
 		bool e_doubleSide;
 
+		bool e_log;
+
 	public:
 		Envelope();
 		Envelope( const QString & line );
@@ -102,6 +104,8 @@ class Envelope
 		qreal recipientIndexTopOffset() const;
 
 		bool doubleSide() const;
+
+		bool log() const;
 };
 
 #endif

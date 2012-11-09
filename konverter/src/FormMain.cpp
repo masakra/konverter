@@ -53,9 +53,9 @@ FormMain::FormMain( QWidget * parent )
 
 	createPrinter();
 
-	loadSettings();
-
 	loadEnvelopes();
+
+	loadSettings();
 
 	QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");	// sqlite3 database
 
@@ -71,6 +71,8 @@ FormMain::FormMain( QWidget * parent )
 FormMain::~FormMain()
 {
 	delete printer;
+
+	saveEnvelopeType();
 }
 
 void
@@ -101,7 +103,8 @@ FormMain::refresh( int id )
 		"ORDER BY "
 			"touch DESC ")
 			.arg( editFilter->text().isEmpty() ? "":
-				QString("AND UPPER( who ) like UPPER( '%%1%' )").arg( editFilter->text() ) ) );
+				QString("AND ( UPPER( who ) like UPPER( '%%1%' ) "
+						   "OR UPPER( ind ) like UPPER( '%%1%' ) )").arg( editFilter->text() ) ) );
 
 	table->setModel( model );
 	table->hideColumn( 0 );
@@ -164,6 +167,7 @@ FormMain::createWidgets()
 	table->resize( 300, 100 );
 
 	editFilter = new QLineEdit( centralWidget );
+	editFilter->setToolTip( "Фильтр по имени или почтовому индексу" );
 
 	connect( editFilter, SIGNAL( textChanged( const QString & ) ),
 			SLOT( filterChanged( const QString & ) ) );
@@ -333,6 +337,14 @@ FormMain::loadSettings()
 
 	loadFont( s, sender, "sender" );
 	loadFont( s, recipient, "recipient" );
+
+	const int e_type = s.value( "envelope_type", 0 ).toInt();
+
+	for ( int i = 0; comboPaperSize->count(); ++i )
+		if ( comboPaperSize->itemData( i ) == e_type ) {
+			comboPaperSize->setCurrentIndex( i );
+			break;
+		}
 }
 
 void
@@ -379,24 +391,25 @@ FormMain::print()
 	if ( comboPaperSize->count() == 0 )
 		return;
 
-	writeLog();
-
-	if ( printSide( 1 ) ) {
-
-		if ( QMessageBox::information( this, "Вторая сторона",
-				"Печать второй стороны.",
-				QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes ) == QMessageBox::Yes )
-			printSide( 2 );
-	}
-}
-
-bool
-FormMain::printSide( int side )
-{
 	int e_id = comboPaperSize->itemData( comboPaperSize->currentIndex() ).toInt();
 
 	const Envelope & e = envelopes[ e_id ];
 
+	if ( e.log() )
+		writeLog();
+
+	if ( printSide( e, 1 ) ) {
+
+		if ( QMessageBox::information( this, "Вторая сторона",
+				"Печать второй стороны.",
+				QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes ) == QMessageBox::Yes )
+			printSide( e, 2 );
+	}
+}
+
+bool
+FormMain::printSide( const Envelope & e, int side )
+{
 	// sizes checking
 	QStringList senderWho = sender->whoList( e.senderWidth() ),
 				senderWhere = sender->whereList( e.senderWidth() ),
@@ -572,7 +585,7 @@ FormMain::modifyRecipientIndex( const QString & text )
 int
 FormMain::insertContact( const QString & field, const QString & text ) const
 {
-	QString sql( "INSERT INTO contact ( who, whe, ind ) VALUES (" );
+	QString sql( "INSERT INTO contact ( who, whe, ind, touch ) VALUES (" );
 
 	QSqlQuery q;
 
@@ -587,7 +600,7 @@ FormMain::insertContact( const QString & field, const QString & text ) const
 		return -1;
 	}
 
-	q.prepare( sql + ")" );
+	q.prepare( sql + ", \"current_timestamp\"() )" );
 
 	q.bindValue(":text", text );
 
@@ -768,8 +781,20 @@ FormMain::checkSize( const QStringList & list, int count, const QString & text )
 	if ( list.size() <= count )
 		return true;
 
+	QStringList l;
+
+	for ( int i = 0; i < list.size() && i < count; ++i )
+		l << list[ i ];
+
 	if ( QMessageBox::warning( this, "Предупреждение",
-				QString("%1 не помещается!\nПродолжить печать?").arg( text ),
+				QString("%1 не помещается!\n\n"
+					"< %2 >.\n\n"
+					"Полный текст:\n\n"
+					"< %3 >.\n\n"
+					"Продолжить печать?")
+						.arg( text )
+						.arg( l.join("\n") )
+						.arg( list.join("\n") ),
 				QMessageBox::Yes | QMessageBox::No, QMessageBox::No ) == QMessageBox::Yes )
 		return true;
 
@@ -799,6 +824,14 @@ FormMain::saveAddressFont( const QFont & font, const QString & prefix ) const
 	s.setValue( key + "size", font.pointSize() );
 	s.setValue( key + "bold", font.bold() );
 	s.setValue( key + "italic", font.italic() );
+}
+
+void
+FormMain::saveEnvelopeType() const
+{
+	QSettings s;
+
+	s.setValue( "envelope_type", comboPaperSize->itemData( comboPaperSize->currentIndex() ).toInt() );
 }
 
 QString
