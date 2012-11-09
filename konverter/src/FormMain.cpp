@@ -559,8 +559,14 @@ FormMain::modifyRecipient( const QString & field, const QString & text )
 		refresh( newId );
 	} else {
 		const int id = currentId();
-		modifyContact( field, text, id );
-		refresh( id );
+		if ( id != -1 ) {
+			modifyContact( field, text, id );
+			refresh( id );
+		} else {
+			QMessageBox::warning( this, "Предупреждение",
+					"Не выбрана ни одна запись.\n"
+					"Изменения будут проигнорированы." );
+		}
 	}
 }
 
@@ -658,10 +664,14 @@ int
 FormMain::currentId() const
 {
 	if ( table->selectionModel() ) {
+
 		const int row = table->selectionModel()->currentIndex().row();
-		return model->index( row, 0 ).data().toInt();
-	} else
-		return -1;
+
+		if ( row != -1 )
+			return model->index( row, 0 ).data().toInt();
+	}
+
+	return -1;
 }
 
 void
