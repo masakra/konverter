@@ -39,12 +39,15 @@ Report::Report( QWidget * parent )
 {
 	setWindowIcon( QIcon(":/report.png") );
 
+	printer.setPageMargins( 5, 5, 5, 5, QPrinter::Millimeter );
 }
 
 void
 Report::show( const DialogReport & dialog )
 {
 	setWindowTitle( dialog.date().toString( "dd MMM yyyy" ) );
+
+	defaultFileName = QString("konverter_%1_report").arg( dialog.date().toString("dd_MM_yyyy" ) );
 
 	makeReport( dialog );
 
@@ -54,10 +57,33 @@ Report::show( const DialogReport & dialog )
 void
 Report::makeReport( const DialogReport & dialog )
 {
-	QString text = QString("<H3><I>Реестр за %1</I></H3>")
+
+	QString text = QString("<TABLE BORDER=0 BGCOLOR=white CELLSPACING=0 WIDTH=700>"
+		"<TR>"
+		  "<TD ALIGN=left>"
+		    "<FONT SIZE=1 COLOR=lightgray>ЗАО %1Нордавиа-РА%2</FONT>"
+		  "</TD>"
+		  "<TD ALIGN=right>"
+		    "<FONT SIZE=1 COLOR=lightgray>%3 v.%4 %5</FONT>"
+		  "</TD>"
+		"</TR>")
+		.arg( QChar( 0xAB ) )
+		.arg( QChar( 0xBB ) )
+		.arg( qApp->applicationName(), qApp->applicationVersion() )
+		.arg( QDateTime::currentDateTime().toString("dd.MM.yyyy hh:mm") );
+
+
+	text += QString("<TR>"
+			  "<TD COLSPAN=2 ALIGN=center>"
+			    "<H3><I>Реестр за %1</I></H3><BR>"
+			  "</TD>"
+			"</TR>")
 		.arg( dialog.date().toString("dd.MM.yyyy") );
 
-	text += QString("<TABLE CELLSPACING=1 CELLPADDING=7 BGCOLOR=%1>"
+	text += QString(
+			"<TR>"
+			"<TD COLSPAN=2>"
+			"<TABLE CELLSPACING=1 CELLPADDING=7 BGCOLOR=%1 WIDTH=100%>"
 			  "<TR>"
 			    "<TH BGCOLOR=%2>Адресат</TH>"
 				"<TH BGCOLOR=%2>Исх. / с/ф</TH>"
@@ -129,8 +155,68 @@ Report::makeReport( const DialogReport & dialog )
 	} else
 		_yell( q );
 
-	text += "</TABLE>";
+	text += "</TABLE>"
+		    "</TD>"
+		  "</TR>"
+		"</TABLE>";
 
 	document()->setHtml( text );
 }
+
+void
+Report::contextMenuEvent( QContextMenuEvent * event )
+{
+	QMenu * menu = createStandardContextMenu();
+
+	QAction * actionPrint = menu->addAction( "Печатать..." );
+	actionPrint->setShortcut( Qt::CTRL + Qt::Key_P );
+	connect( actionPrint, SIGNAL( triggered() ), SLOT( printToPrinter() ) );
+
+	QAction * actionToPdf = menu->addAction( "Сохранить в PDF..." );
+	actionToPdf->setShortcut( Qt::CTRL + Qt::Key_E );
+	connect( actionToPdf, SIGNAL( triggered() ), SLOT( saveToPdf() ) );
+
+	menu->exec( event->globalPos() );
+
+	delete actionToPdf;
+	delete actionPrint;
+	delete menu;
+}
+
+void
+Report::printToPrinter()
+{
+	QPrintDialog pd( &printer );
+
+	if ( pd.exec() == QDialog::Accepted ) {
+
+		printer.setOutputFormat( QPrinter::NativeFormat );
+		print( &printer );
+	}
+}
+
+void
+Report::saveToPdf()
+{
+	QSettings settings;
+
+	QString fileName = QFileDialog::getSaveFileName( 0, "Сохранит в PDF",
+			settings.value( DIR_PATH, ".").toString() +
+			QDir::separator() + defaultFileName,
+			tr("PDF files (*.pdf)"));
+
+	if ( ! fileName.isEmpty() ) {
+		// save last saving dir
+		QFileInfo fileInfo( fileName );
+
+		settings.setValue( DIR_PATH, fileInfo.dir().path() );
+
+		printer.setOutputFormat( QPrinter::PdfFormat );
+		printer.setOutputFileName( fileName );
+		print( &printer );
+	}
+}
+
+
+
 

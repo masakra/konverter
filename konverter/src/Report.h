@@ -30,14 +30,33 @@
 #ifndef REPORT_H
 #define REPORT_H
 
+#define DIR_PATH "save_to_pdf_dir_path"
+
 #include <QTextEdit>
+
+#include <QPrinter>
 
 class DialogReport;
 
 class Report : public QTextEdit
 {
+	Q_OBJECT
+
 	private:
+
+		QPrinter printer;
+
 		void makeReport( const DialogReport & dialog );
+
+		QString defaultFileName;
+
+	private Q_SLOTS:
+		void printToPrinter();
+
+		void saveToPdf();
+
+	protected:
+		virtual void contextMenuEvent( QContextMenuEvent * event );
 
 	public:
 		Report( QWidget * parent = 0 );
