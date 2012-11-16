@@ -87,7 +87,7 @@ Report::makeReport( const DialogReport & dialog )
 			  "<TR>"
 			    "<TH BGCOLOR=%2>Адресат</TH>"
 				"<TH BGCOLOR=%2>Исх. / с/ф</TH>"
-				"<TH BGCOLOR=%2>Время</TH>"
+				//"<TH BGCOLOR=%2>Время</TH>"
 				"<TH BGCOLOR=%2>Прим.</TH>"
 			  "</TR>").arg( "lightskyblue", "paleturquoise" );
 
@@ -112,7 +112,7 @@ Report::makeReport( const DialogReport & dialog )
 			"c.who, "
 			"l.num_text, "
 			"l.num, "
-			"substr( l.timestamp, 12 ), "
+			//"substr( l.timestamp, 12 ), "
 			"zakaz "
 		"FROM "
 			"log l "
@@ -142,9 +142,9 @@ Report::makeReport( const DialogReport & dialog )
 				  text += q.value( 1 ).toString() + " " + q.value( 2 ).toString();
 			  text += "</TD>";
 
-			  text += QString("<TD BGCOLOR=%1>").arg( bgcolor );
-			  text += q.value( 3 ).toString();
-			  text += "</TD>";
+			  //text += QString("<TD BGCOLOR=%1>").arg( bgcolor );
+			  //text += q.value( 3 ).toString();
+			  //text += "</TD>";
 
 			  text += QString("<TD BGCOLOR=%1>").arg( bgcolor );
 			  text += ( q.value( 4 ).toInt() == 1 ? "заказное" : "" );
