@@ -85,11 +85,14 @@ Report::makeReport( const DialogReport & dialog )
 			"<TD COLSPAN=2>"
 			"<TABLE CELLSPACING=1 CELLPADDING=7 BGCOLOR=%1 WIDTH=100%>"
 			  "<TR>"
+			    "<TH BGCOLOR=%2>%3</TH>"
 			    "<TH BGCOLOR=%2>Адресат</TH>"
 				"<TH BGCOLOR=%2>Исх. / с/ф</TH>"
 				//"<TH BGCOLOR=%2>Время</TH>"
 				"<TH BGCOLOR=%2>Прим.</TH>"
-			  "</TR>").arg( "lightskyblue", "paleturquoise" );
+			  "</TR>")
+		.arg( "lightskyblue", "paleturquoise" )
+		.arg( QChar( 0x2116 ) );
 
 	QString orderColumn;
 
@@ -133,6 +136,10 @@ Report::makeReport( const DialogReport & dialog )
 			const QString bgcolor = row++ % 2 ? "white" : "azure";
 
 			text += "<TR>";
+			  text += QString("<TD BGCOLOR=%1 ALIGN=center>").arg( bgcolor );
+			  text += QString::number( row );
+			  text += "</TD>";
+
 			  text += QString("<TD BGCOLOR=%1>").arg( bgcolor );
 			  text += q.value( 0 ).toString();
 			  text += "</TD>";
