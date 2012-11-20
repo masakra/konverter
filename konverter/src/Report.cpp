@@ -154,7 +154,7 @@ Report::makeReport( const DialogReport & dialog )
 			  //text += "</TD>";
 
 			  text += QString("<TD BGCOLOR=%1>").arg( bgcolor );
-			  text += ( q.value( 4 ).toInt() == 1 ? "заказное" : "" );
+			  text += ( q.value( 3 ).toInt() == 1 ? "заказное" : "" );
 			  text += "</TD>";
 
 			text += "</TR>";
