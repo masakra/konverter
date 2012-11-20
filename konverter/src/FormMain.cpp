@@ -32,6 +32,7 @@
 #include <QtGui>
 #include <QtSql>
 #include "_.h"
+#include "DialogConnect.h"
 #include "DialogReport.h"
 #include "Report.h"
 #include "SqlQueryModel.h"
@@ -43,9 +44,9 @@
 #endif
 
 FormMain::FormMain( QWidget * parent )
-	: QMainWindow( parent )
+	: QMainWindow( parent )//, dbPg( false )
 {
-	setWindowTitle( qApp->applicationName() );
+	setWindowTitle( qApp->applicationName() + " - no connection" );
 
 	createWidgets();
 
@@ -56,16 +57,6 @@ FormMain::FormMain( QWidget * parent )
 	loadEnvelopes();
 
 	loadSettings();
-
-	QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");	// sqlite3 database
-
-	db.setDatabaseName( dataPath() + qApp->applicationName() + ".db" );
-
-	if ( db.open() ) {
-		setSenderData();
-		createModel();
-	} else
-		_yell( db.lastError().text() );
 }
 
 FormMain::~FormMain()
@@ -96,12 +87,13 @@ FormMain::refresh( int id )
 			"whe, "
 			"ind "
 		"FROM "
-			"contact "
+			"%1 "
 		"WHERE "
 			"id != 0 "
-			"%1 "
+			"%2 "
 		"ORDER BY "
 			"touch DESC ")
+			.arg( tableName( "contact" ) )
 			.arg( editFilter->text().isEmpty() ? "":
 				QString("AND ( UPPER( who ) like UPPER( '%%1%' ) "
 						   "OR UPPER( ind ) like UPPER( '%%1%' ) )").arg( editFilter->text() ) ) );
@@ -283,14 +275,15 @@ FormMain::setSenderData()
 {
 	QSqlQuery q;
 
-	q.prepare("SELECT "
+	q.prepare( QString("SELECT "
 			"who, "
 			"whe, "
 			"ind "
 		"FROM "
-			"contact "
+			"%1 "
 		"WHERE "
-			"id = 0");	// not id as variant )))
+			"id = 0")	// not id as variant )))
+			.arg( tableName( "contact" ) ) );
 
 	if ( q.exec() ) {
 		if ( q.first() )
@@ -520,11 +513,13 @@ FormMain::modifyContact( const QString & field, const QString & text, int id ) c
 	QSqlQuery q;
 
 	q.prepare( QString("UPDATE "
-			"contact "
+			"%1 "
 		"SET "
-			"%1 = :text "
+			"%2 = :text "
 		"WHERE "
-			"id = :id").arg( field ) );
+			"id = :id")
+			.arg( tableName( "contact" ) )
+			.arg( field ) );
 
 	q.bindValue(":text", text );
 	q.bindValue(":id", id );
@@ -591,7 +586,8 @@ FormMain::modifyRecipientIndex( const QString & text )
 int
 FormMain::insertContact( const QString & field, const QString & text ) const
 {
-	QString sql( "INSERT INTO contact ( who, whe, ind, touch ) VALUES (" );
+	QString sql( QString("INSERT INTO %1 ( who, whe, ind, touch ) VALUES (" )
+			.arg( tableName( "contact" ) ) );
 
 	QSqlQuery q;
 
@@ -606,17 +602,29 @@ FormMain::insertContact( const QString & field, const QString & text ) const
 		return -1;
 	}
 
-	q.prepare( sql + ", \"current_timestamp\"() )" );
+	if ( _dbPg )
+		q.prepare( sql + ", \"now\"() ) RETURNING id " );
+	else
+		q.prepare( sql + ", \"current_timestamp\"() )" );
 
 	q.bindValue(":text", text );
 
 	if ( q.exec() ) {
-		q.prepare("SELECT last_insert_rowid()");
+		if ( _dbPg ) {
+			if ( q.first() )
+				return q.value( 0 ).toInt();
+			else
+				_yell( "No returning id" );
 
-		if ( q.exec() && q.first() ) {
-			return q.value( 0 ).toInt();
-		} else
-			_yell( q );
+		} else {
+			q.prepare("SELECT last_insert_rowid()");
+
+			if ( q.exec() && q.first() )
+				return q.value( 0 ).toInt();
+			else
+				_yell( q );
+		}
+
 	} else
 		_yell( q );
 
@@ -646,10 +654,11 @@ FormMain::delContact()
 
 	// TODO удалить все записи из журнала, или не надо, ON DELETE CASCADE, проверить
 
-	q.prepare("DELETE FROM "
-				"contact "
+	q.prepare( QString("DELETE FROM "
+				"%1 "
 			"WHERE "
-				"id = :id");
+				"id = :id")
+			.arg( tableName( "contact" ) ) );
 
 	q.bindValue(":id", currentId() );
 
@@ -713,7 +722,7 @@ FormMain::writeLog() const
 
 	QSqlQuery q;
 
-	q.prepare("INSERT INTO log ("
+	q.prepare( QString("INSERT INTO %1 ("
 			"contact_id, "
 			"num_text, "
 			"num, "
@@ -722,7 +731,8 @@ FormMain::writeLog() const
 			":id, "
 			":numt, "
 			":num, "
-			":zak )");
+			":zak )")
+			.arg( tableName( "log" ) ) );
 
 	q.bindValue(":id", id );
 	q.bindValue(":numt", comboIshod->itemData( comboIshod->currentIndex() ).toString() );
@@ -842,6 +852,114 @@ FormMain::saveEnvelopeType() const
 	QSettings s;
 
 	s.setValue( "envelope_type", comboPaperSize->itemData( comboPaperSize->currentIndex() ).toInt() );
+}
+
+bool
+FormMain::dbConnect()
+{
+	QStringList args = qApp->arguments();
+
+	QString host( "localhost" ),
+			database,
+			port( "5432" ),
+			user( getenv("USER") ),
+			pass;
+
+	for ( int i = 0; i < args.size(); ++i ) {
+
+		if ( args[ i ] == "-p" ) {
+			_dbPg = true;
+			continue;
+		}
+
+		if ( i > 0 && args[ i ][ 0 ] != '-' ) {
+			const QStringList dbList = args[ i ].split(":");
+
+			switch ( dbList.size() ) {
+				case 1:
+					database = dbList[ 0 ];
+					break;
+
+				case 2:
+					database = dbList[ 0 ];
+					user = dbList[ 1 ];
+					break;
+
+				case 3:
+					host = dbList[ 0 ];
+					database = dbList[ 1 ];
+					user =dbList[ 2 ];
+					break;
+
+				case 4:
+					host = dbList[ 0 ];
+					database = dbList[ 1 ];
+					user = dbList[ 2 ];
+					pass = dbList[ 3 ];
+					break;
+
+				case 5:
+					host = dbList[ 0 ];
+					port = dbList[ 1 ];
+					database = dbList[ 2 ];
+					user = dbList[ 3 ];
+					pass = dbList[ 4 ];
+					break;
+
+				default:
+					;
+			}
+			continue;
+		}
+	}
+
+	QSqlDatabase db = QSqlDatabase::addDatabase( _dbPg ? "QPSQL" : "QSQLITE" );
+
+	DialogConnect * dc = 0;
+
+	if ( _dbPg ) {
+
+		if ( database.isEmpty() ) {
+			dc = new DialogConnect( qApp->applicationName(), this );
+
+			if ( ! dc->exec() )
+				return false;
+
+			host = dc->hostName();
+			port = dc->port();
+			database = dc->databaseName();
+			user = dc->userName();
+			pass = dc->password();
+		}
+
+		db.setHostName( host );
+		db.setPort( port.toInt() );
+		db.setDatabaseName( database );
+		db.setUserName( user );
+		db.setPassword( pass );
+
+	} else {
+		db.setDatabaseName( dataPath() + qApp->applicationName() + ".db" );
+	}
+
+	if ( db.open() ) {
+		setSenderData();
+		createModel();
+
+		if ( _dbPg )
+			setWindowTitle( qApp->applicationName().append(" - %1@%2").arg( user, host ) );
+		else
+			setWindowTitle( qApp->applicationName() );
+
+		if ( dc )
+			dc->saveSettings();
+
+		return true;
+
+	} else
+		_yell( db.lastError().text() );
+
+	return false;
 }
 
 QString

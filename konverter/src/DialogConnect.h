@@ -1,11 +1,7 @@
 /***************************************************************************
- *   Copyright (C) 2012 Nordavia-RA                                        *
+ *   Copyright (C) 2008 by Chursanov Sergey Nikolaevich                    *
  *                                                                         *
- *   email: masakra@mail.ru                                                *
- *   ICQ: 124231040                                                        *
- *   jabber: masakra@jabber.ru                                             *
- *                                                                         *
- *   All comments, if not ascii, in koi8-r                                 *
+ *   masakra@mail.ru                                                       *
  *                                                                         *
  *   Permission is hereby granted, free of charge, to any person obtaining *
  *   a copy of this software and associated documentation files (the       *
@@ -20,27 +16,75 @@
  *                                                                         *
  *   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,       *
  *   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF    *
- *   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. *
+ *   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.*
  *   IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR     *
  *   OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, *
  *   ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR *
  *   OTHER DEALINGS IN THE SOFTWARE.                                       *
  ***************************************************************************/
 
-#ifndef __H
-#define __H
+ /** \class DialogConnect
+ //
+ // \brief Диалог соединения с базой данных
+ */
 
-#include <QString>
+#ifndef DIALOGCONNECT_H
+#define DIALOGCONNECT_H
 
-class QSqlQuery;
+#include <QDialog>
 
-extern void _yell( const QString & text );
+class QGroupBox;
+class QHBoxLayout;
+class QLabel;
+class QLineEdit;
+class QPushButton;
+class QSqlDatabase;
 
-extern void _yell( const QSqlQuery & query );
+class DialogConnect : public QDialog
+{
+	Q_OBJECT
 
-extern bool _dbPg;
+	private:
+		QGroupBox * groupServer;
 
-extern QString tableName( const QString & table );
+		QLineEdit * editUsername,
+				  * editPassword,
+				  * editHost,
+				  * editPort,
+				  * editDatabase;
+
+		QPushButton	* buttonOk,
+					* buttonServer;
+
+		QLabel * labelHint;
+
+		void setLabelHint();
+
+		void createWidgets();
+
+		QHBoxLayout * createLabeledEdit( QLineEdit ** edit, const QString labelText );
+
+		void loadSettings();
+
+	private slots:
+		//void doConnect();
+		void check();
+
+	public:
+		DialogConnect( QString title, QWidget * parent = 0 );
+
+		void saveSettings() const;
+
+		QString hostName() const;
+
+		QString port() const;
+
+		QString databaseName() const;
+
+		QString userName() const;
+
+		QString password() const;
+};
 
 #endif
 

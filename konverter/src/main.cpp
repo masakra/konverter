@@ -46,6 +46,9 @@ main( int argc, char ** argv )
 
 	FormMain fm;
 
+	if ( ! fm.dbConnect() )
+		return -1;
+
 	fm.show();
 
 	return app.exec();

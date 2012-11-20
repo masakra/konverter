@@ -46,3 +46,14 @@ _yell( const QSqlQuery & query )
 	_yell( query.lastError().text() );
 }
 
+bool _dbPg( false );
+
+QString
+tableName( const QString & table )
+{
+	if ( _dbPg )
+		return QString( "\"konverter\".\"%1\"" ).arg( table );
+	else
+		return table;
+}
+

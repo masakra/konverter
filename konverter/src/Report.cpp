@@ -118,13 +118,17 @@ Report::makeReport( const DialogReport & dialog )
 			//"substr( l.timestamp, 12 ), "
 			"zakaz "
 		"FROM "
-			"log l "
+			"%1 l "
 		"INNER JOIN "
-			"contact c ON c.id = l.contact_id "
+			"%2 c ON c.id = l.contact_id "
 		"WHERE "
-			"substr( l.timestamp, 1, 10 ) = :date "
+			"%3 "//"substr( l.timestamp, 1, 10 ) = :date "
 		"ORDER BY "
-			"%1 ").arg( orderColumn ) );
+			"%4 ")
+			.arg( tableName( "log" ) )
+			.arg( tableName( "contact" ) )
+			.arg( _dbPg ? "date( drec ) = :date" : "substr( l.timestamp, 1, 10 ) = :date " )
+			.arg( orderColumn ) );
 
 	q.bindValue(":date", dialog.date().toString("yyyy-MM-dd") );
 

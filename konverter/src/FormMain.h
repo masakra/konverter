@@ -73,7 +73,6 @@ class FormMain : public QMainWindow
 
 		WidgetRecipient * recipient;
 
-
 		QLabel * labelCount;
 
 		QTableView * table;
@@ -135,6 +134,10 @@ class FormMain : public QMainWindow
 
 		void saveEnvelopeType() const;
 
+		//bool dbPg;
+
+		//QString tableName( const QString & table ) const;
+
 	private Q_SLOTS:
 		void contactChanged( const QModelIndex & current, const QModelIndex & previous );
 
@@ -165,6 +168,8 @@ class FormMain : public QMainWindow
 	public:
 		FormMain( QWidget * parent = 0 );
 		~FormMain();
+
+		bool dbConnect();
 };
 
 #endif
