@@ -8,7 +8,8 @@ CREATE TABLE contact (
 	who		TEXT,		--- who
 	whe		TEXT,		--- where
 	ind		TEXT,		--- post index
-	touch	TEXT NOT NULL DEFAULT '1990-01-01 00:00:00'
+	touch	TEXT NOT NULL DEFAULT '1990-01-01 00:00:00',
+	city	TEXT
 );
 
 ----CREATE UNIQUE INDEX "contact_who_idx" ON "contact" ( who );
