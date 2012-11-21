@@ -71,7 +71,7 @@ class DialogConnect : public QDialog
 		void check();
 
 	public:
-		DialogConnect( QString title, QWidget * parent = 0 );
+		DialogConnect( QWidget * parent = 0 );
 
 		void saveSettings() const;
 

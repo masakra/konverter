@@ -945,7 +945,7 @@ FormMain::dbConnect()
 	if ( _dbPg ) {
 
 		if ( database.isEmpty() ) {
-			dc = new DialogConnect( qApp->applicationName(), this );
+			dc = new DialogConnect( this );
 
 			if ( ! dc->exec() )
 				return false;

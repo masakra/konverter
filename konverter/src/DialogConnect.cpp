@@ -28,11 +28,11 @@
 #include <QtGui>
 #include <QtSql>
 
-DialogConnect::DialogConnect( QString title, QWidget * parent )
+DialogConnect::DialogConnect( QWidget * parent )
 	: QDialog( parent )
 {
-	setWindowTitle( title );
-	setWindowIcon( QIcon(":/connecting.png") );
+	setWindowTitle( QString("%1 v. %2").arg( qApp->applicationName(), qApp->applicationVersion() ) );
+	setWindowIcon( QIcon(":/main.png") );
 	createWidgets();
 	loadSettings();
 	check();
