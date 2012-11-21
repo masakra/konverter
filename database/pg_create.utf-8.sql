@@ -31,6 +31,7 @@ CREATE TABLE "konverter"."log" (
 	num_text	varchar,
 	num			varchar,
 	zakaz		integer NOT NULL DEFAULT 0,
-	drec		timestamp without time zone NOT NULL DEFAULT "now"()
+	drec		timestamp without time zone NOT NULL DEFAULT "now"(),
+	operator	name NOT NULL DEFAULT "current_user"()
 );
 
