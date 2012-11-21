@@ -86,6 +86,7 @@ Report::makeReport( const DialogReport & dialog )
 			"<TABLE CELLSPACING=1 CELLPADDING=7 BGCOLOR=%1 WIDTH=100%>"
 			  "<TR>"
 			    "<TH BGCOLOR=%2>%3</TH>"
+			    "<TH BGCOLOR=%2>Город</TH>"
 			    "<TH BGCOLOR=%2>Адресат</TH>"
 				"<TH BGCOLOR=%2>Исх. / с/ф</TH>"
 				//"<TH BGCOLOR=%2>Время</TH>"
@@ -101,30 +102,37 @@ Report::makeReport( const DialogReport & dialog )
 			orderColumn = "1";
 			break;
 
-		case DialogReport::Number:
-			orderColumn = "3";
+		case DialogReport::City:
+			orderColumn = "2";
 			break;
 
-		default:
+		case DialogReport::Number:
 			orderColumn = "4";
+			break;
+
+		case DialogReport::Time:
+		default:
+			orderColumn = "5";	// по-умолчанию по городу
 	}
 
 	QSqlQuery q;
 
 	q.prepare( QString("SELECT "
 			"c.who, "
+			"c.city, "
 			"l.num_text, "
 			"l.num, "
-			//"substr( l.timestamp, 12 ), "
+			"%1, "
 			"zakaz "
 		"FROM "
-			"%1 l "
+			"%2 l "
 		"INNER JOIN "
-			"%2 c ON c.id = l.contact_id "
+			"%3 c ON c.id = l.contact_id "
 		"WHERE "
-			"%3 "//"substr( l.timestamp, 1, 10 ) = :date "
+			"%4 "//"substr( l.timestamp, 1, 10 ) = :date "
 		"ORDER BY "
-			"%4 ")
+			"%5 ")
+			.arg( _dbPg ? "\"time\"( drec )" : "substr( l.timestamp, 12 )" )
 			.arg( tableName( "log" ) )
 			.arg( tableName( "contact" ) )
 			.arg( _dbPg ? "date( drec ) = :date" : "substr( l.timestamp, 1, 10 ) = :date " )
@@ -145,12 +153,16 @@ Report::makeReport( const DialogReport & dialog )
 			  text += "</TD>";
 
 			  text += QString("<TD BGCOLOR=%1>").arg( bgcolor );
+			  text += q.value( 1 ).toString();
+			  text += "</TD>";
+
+			  text += QString("<TD BGCOLOR=%1>").arg( bgcolor );
 			  text += q.value( 0 ).toString();
 			  text += "</TD>";
 
 			  text += QString("<TD BGCOLOR=%1>").arg( bgcolor );
-			  if ( ! q.value( 2 ).toString().trimmed().isEmpty() )
-				  text += q.value( 1 ).toString() + " " + q.value( 2 ).toString();
+			  if ( ! q.value( 3 ).toString().trimmed().isEmpty() )
+				  text += q.value( 2 ).toString() + " " + q.value( 3 ).toString();
 			  text += "</TD>";
 
 			  //text += QString("<TD BGCOLOR=%1>").arg( bgcolor );
@@ -158,7 +170,7 @@ Report::makeReport( const DialogReport & dialog )
 			  //text += "</TD>";
 
 			  text += QString("<TD BGCOLOR=%1>").arg( bgcolor );
-			  text += ( q.value( 3 ).toInt() == 1 ? "заказное" : "" );
+			  text += ( q.value( 5 ).toInt() == 1 ? "заказное" : "" );
 			  text += "</TD>";
 
 			text += "</TR>";

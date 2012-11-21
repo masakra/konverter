@@ -51,11 +51,14 @@ DialogReport::createWidgets()
 
 	radioTime = new QRadioButton( "по времени", this );
 
+	radioCity = new QRadioButton( "по городу", this );
+
 	QVBoxLayout * layoutOrder = new QVBoxLayout();
 
 	layoutOrder->addWidget( radioWho );
 	layoutOrder->addWidget( radioIshod );
 	layoutOrder->addWidget( radioTime );
+	layoutOrder->addWidget( radioCity );
 
 	QGroupBox * groupOrder = new QGroupBox( "Сортировать", this );
 
@@ -85,9 +88,14 @@ DialogReport::orderBy() const
 {
 	if ( radioWho->isChecked() )
 		return Who;
+
 	else if ( radioIshod->isChecked() )
 		return Number;
-	else
+
+	else if ( radioTime->isChecked() )
 		return Time;
+
+	else
+		return City;
 }
 

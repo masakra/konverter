@@ -45,7 +45,8 @@ class DialogReport : public QDialog
 		enum OrderBy {
 			Who,
 			Number,
-			Time
+			Time,
+			City
 		};
 
 	private:
@@ -55,7 +56,8 @@ class DialogReport : public QDialog
 
 		QRadioButton * radioWho,
 					 * radioIshod,
-					 * radioTime;
+					 * radioTime,
+					 * radioCity;
 
 	public:
 		DialogReport( QWidget * parent = 0 );
