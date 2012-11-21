@@ -36,6 +36,7 @@
 #include "DialogReport.h"
 #include "Report.h"
 #include "SqlQueryModel.h"
+#include "WidgetAddition.h"
 #include "WidgetRecipient.h"
 #include "WidgetSender.h"
 
@@ -85,7 +86,8 @@ FormMain::refresh( int id )
 			"id, "
 			"who, "
 			"whe, "
-			"ind "
+			"ind, "
+			"city "
 		"FROM "
 			"%1 "
 		"WHERE "
@@ -102,6 +104,7 @@ FormMain::refresh( int id )
 	table->hideColumn( 0 );
 	table->hideColumn( 2 );
 	table->hideColumn( 3 );
+	table->hideColumn( 4 );
 
 	connect( table->selectionModel(), SIGNAL( currentChanged( const QModelIndex &, const QModelIndex & ) ),
 				SLOT( contactChanged( const QModelIndex &, const QModelIndex & ) ) );
@@ -247,6 +250,11 @@ FormMain::createWidgets()
 	connect( recipient, SIGNAL( addressFontChanged( const QFont & ) ),
 			SLOT( saveRecipientAddressFont( const QFont & ) ) );
 
+	addition = new WidgetAddition( this );
+
+	connect( addition, SIGNAL( cityChanged( const QString & ) ),
+			SLOT( modifyRecipientCity( const QString & ) ) );
+
 	layoutButtons->addStretch();
 	layoutButtons->addWidget( buttonAdd );
 	layoutButtons->addWidget( buttonDel );
@@ -262,10 +270,12 @@ FormMain::createWidgets()
 
 	gridLayout->addLayout( layoutIshod, 1, 1 );
 
-	gridLayout->addLayout( layoutTable, 2, 0, 2, 1 );
+	gridLayout->addLayout( layoutTable, 2, 0, 3, 1 );
 	gridLayout->addWidget( recipient, 2, 1 );
 
-	gridLayout->addLayout( layoutButtons, 3, 1 );
+	gridLayout->addWidget( addition, 3, 1 );
+
+	gridLayout->addLayout( layoutButtons, 4, 1 );
 
 	setCentralWidget( centralWidget );
 }
@@ -307,9 +317,12 @@ FormMain::contactChanged( const QModelIndex & current, const QModelIndex & )
 
 	const QString who = model->index( row, 1 ).data().toString(),
 				  where = model->index( row, 2 ).data().toString(),
-				  index = model->index( row, 3 ).data().toString();
+				  index = model->index( row, 3 ).data().toString(),
+				  city = model->index( row, 4 ).data().toString();
 
 	recipient->setAll( who, where, index );
+
+	addition->setCity( city );
 }
 
 void
@@ -583,20 +596,32 @@ FormMain::modifyRecipientIndex( const QString & text )
 	modifyRecipient( "ind", text );
 }
 
+void
+FormMain::modifyRecipientCity( const QString & text )
+{
+	modifyRecipient( "city", text );
+}
+
 int
 FormMain::insertContact( const QString & field, const QString & text ) const
 {
-	QString sql( QString("INSERT INTO %1 ( who, whe, ind, touch ) VALUES (" )
+	QString sql( QString("INSERT INTO %1 ( who, whe, ind, city, touch ) VALUES (" )
 			.arg( tableName( "contact" ) ) );
 
 	QSqlQuery q;
 
 	if ( field == "who" )
-		sql += ":text, '', ''";
+		sql += ":text, '', '', ''";
+
 	else if ( field == "whe" )
-		sql += "'', :text, ''";
+		sql += "'', :text, '', ''";
+
 	else if ( field == "ind" )
-		sql += "'', '', :text";
+		sql += "'', '', :text, ''";
+
+	else if ( field == "city" )
+		sql += "'', '', '', :text";
+
 	else {
 		_yell( QString("Неизвестное поле: %1").arg( field ) );
 		return -1;

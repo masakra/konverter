@@ -51,6 +51,7 @@ class QSettings;
 class QTableView;
 class QToolButton;
 class SqlQueryModel;
+class WidgetAddition;
 class WidgetContact;
 class WidgetRecipient;
 class WidgetSender;
@@ -72,6 +73,8 @@ class FormMain : public QMainWindow
 		WidgetSender * sender;
 
 		WidgetRecipient * recipient;
+
+		WidgetAddition * addition;
 
 		QLabel * labelCount;
 
@@ -152,6 +155,8 @@ class FormMain : public QMainWindow
 		void modifyRecipientWho( const QString & text );
 		void modifyRecipientWhere( const QString & text );
 		void modifyRecipientIndex( const QString & text );
+
+		void modifyRecipientCity( const QString & text );
 
 		void addContact();
 		void delContact();
