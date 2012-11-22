@@ -41,31 +41,31 @@ DialogConnect::DialogConnect( QWidget * parent )
 void
 DialogConnect::createWidgets()
 {
-	// ËÁÒÔÉÎËÁ
+	// ÐºÐ°Ñ€Ñ‚Ð¸Ð½ÐºÐ°
 
 	QLabel * labelImage = new QLabel( this );
 	labelImage->setPixmap( QPixmap(":/nordavia_konverter.png") );
-	// ÇÒÕÐÐÁ User
+	// Ð³Ñ€ÑƒÐ¿Ð¿Ð° User
 
-	QGroupBox * groupUser = new QGroupBox( "ðÏÌØÚÏ×ÁÔÅÌØ" );
+	QGroupBox * groupUser = new QGroupBox( "ÐŸÐ¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»ÑŒ" );
 	QVBoxLayout * layoutUser = new QVBoxLayout( groupUser );
-	layoutUser->addLayout( createLabeledEdit( &editUsername, "&ðÏÌØÚÏ×ÁÔÅÌØ" ) );
-	layoutUser->addLayout( createLabeledEdit( &editPassword, "&ðÁÒÏÌØ" ) );
+	layoutUser->addLayout( createLabeledEdit( &editUsername, "&ÐŸÐ¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»ÑŒ" ) );
+	layoutUser->addLayout( createLabeledEdit( &editPassword, "&ÐŸÐ°Ñ€Ð¾Ð»ÑŒ" ) );
 	editPassword->setEchoMode( QLineEdit::Password );
 
 	connect( editUsername, SIGNAL( textChanged( const QString ) ), SLOT( check() ) );
 
-	// ÇÒÕÐÐÁ Server
+	// Ð³Ñ€ÑƒÐ¿Ð¿Ð° Server
 
 	labelHint = new QLabel( this );
 	labelHint->setEnabled( false );
 
-	groupServer = new QGroupBox( "óÅÒ×ÅÒ" );
+	groupServer = new QGroupBox( "Ð¡ÐµÑ€Ð²ÐµÑ€" );
 	QVBoxLayout * layoutServer = new QVBoxLayout( groupServer );
-	layoutServer->addLayout( createLabeledEdit( &editHost, "&óÅÒ×ÅÒ" ) );
-	layoutServer->addLayout( createLabeledEdit( &editPort, "&ðÏÒÔ" ) );
-	layoutServer->addLayout( createLabeledEdit( &editDatabase, "âÁÚÁ &ÄÁÎÎÙÈ" ) );
-	groupServer->hide(); // ÐÒÉ ÚÁÐÕÓËÅ ÎÅ ÐÏËÁÚÙ×ÁÔØ
+	layoutServer->addLayout( createLabeledEdit( &editHost, "&Ð¡ÐµÑ€Ð²ÐµÑ€" ) );
+	layoutServer->addLayout( createLabeledEdit( &editPort, "&ÐŸÐ¾Ñ€Ñ‚" ) );
+	layoutServer->addLayout( createLabeledEdit( &editDatabase, "Ð‘Ð°Ð·Ð° &Ð´Ð°Ð½Ð½Ñ‹Ñ…" ) );
+	groupServer->hide(); // Ð¿Ñ€Ð¸ Ð·Ð°Ð¿ÑƒÑÐºÐµ Ð½Ðµ Ð¿Ð¾ÐºÐ°Ð·Ñ‹Ð²Ð°Ñ‚ÑŒ
 
 	connect( editHost, SIGNAL( textChanged( const QString & ) ), SLOT( check() ) );
 	connect( editPort, SIGNAL( textChanged( const QString & ) ), SLOT( check() ) );
@@ -75,10 +75,10 @@ DialogConnect::createWidgets()
 	buttonOk = new QPushButton( tr("Ok") );
 	connect( buttonOk, SIGNAL( clicked() ), SLOT( accept() ) );
 
-	QPushButton * buttonClose = new QPushButton( "úÁËÒÙÔØ" );
+	QPushButton * buttonClose = new QPushButton( "Ð—Ð°ÐºÑ€Ñ‹Ñ‚ÑŒ" );
 	connect( buttonClose, SIGNAL( clicked() ), SLOT( close() ) );
 
-	buttonServer = new QPushButton( "óÅÒ×ÅÒ" );
+	buttonServer = new QPushButton( "Ð¡ÐµÑ€Ð²ÐµÑ€" );
 	buttonServer->setCheckable( true );
 	connect( buttonServer, SIGNAL( toggled( bool ) ), groupServer,
 			SLOT( setVisible( bool ) ) );
@@ -116,10 +116,10 @@ DialogConnect::loadSettings()
 
 	setLabelHint();
 
-	// ÅÓÌÉ ÉÍÑ ÎÅ ÐÕÓÔÏÅ - ÆÏËÕÓ ××ÏÄÁ ÎÁ ÐÁÒÏÌØ
+	// ÐµÑÐ»Ð¸ Ð¸Ð¼Ñ Ð½Ðµ Ð¿ÑƒÑÑ‚Ð¾Ðµ - Ñ„Ð¾ÐºÑƒÑ Ð²Ð²Ð¾Ð´Ð° Ð½Ð° Ð¿Ð°Ñ€Ð¾Ð»ÑŒ
 	if ( ! editUsername->text().isEmpty() ) editPassword->setFocus();
 
-	// ÅÓÌÉ ÈÏÔÑ ÂÙ ÏÄÉÎ ÐÁÒÁÍÅÔÒ ÓÏÅÄÉÎÅÎÉÑ ÐÕÓÔÏÊ, ÐÏËÁÚÁÔØ ÇÒÕÐÐÕ, ÓÐÒÑÔÁÔØ ÍÅÔËÕ
+	// ÐµÑÐ»Ð¸ Ñ…Ð¾Ñ‚Ñ Ð±Ñ‹ Ð¾Ð´Ð¸Ð½ Ð¿Ð°Ñ€Ð°Ð¼ÐµÑ‚Ñ€ ÑÐ¾ÐµÐ´Ð¸Ð½ÐµÐ½Ð¸Ñ Ð¿ÑƒÑÑ‚Ð¾Ð¹, Ð¿Ð¾ÐºÐ°Ð·Ð°Ñ‚ÑŒ Ð³Ñ€ÑƒÐ¿Ð¿Ñƒ, ÑÐ¿Ñ€ÑÑ‚Ð°Ñ‚ÑŒ Ð¼ÐµÑ‚ÐºÑƒ
 	if ( editHost->text().isEmpty() || editPort->text().isEmpty() || editDatabase->text().isEmpty() ) {
 		buttonServer->setChecked( true );
 	}

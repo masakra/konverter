@@ -42,7 +42,8 @@ main( int argc, char ** argv )
 	app.setOrganizationName( "Nordavia-RA" );
 	app.setWindowIcon( QIcon(":/main.png") );
 
-	QTextCodec::setCodecForCStrings( QTextCodec::codecForName( "KOI8-R" ) );
+	//QTextCodec::setCodecForCStrings( QTextCodec::codecForName( "KOI8-R" ) );
+	QTextCodec::setCodecForCStrings( QTextCodec::codecForName( "UTF-8" ) );
 
 	FormMain fm;
 

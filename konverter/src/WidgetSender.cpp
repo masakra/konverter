@@ -32,8 +32,8 @@
 #include <QtGui>
 #include "LineEdit.h"
 
-const QString WidgetSender::fromWho = QTextCodec::codecForName("KOI8-R")->toUnicode("Ô‘ Àœ«œ");
-const QString WidgetSender::fromWhere = QTextCodec::codecForName("KOI8-R")->toUnicode("Ô‘À’ƒ¡");
+const QString WidgetSender::fromWho = QTextCodec::codecForName("UTF-8")->toUnicode("–û—Ç –∫–æ–≥–æ");
+const QString WidgetSender::fromWhere = QTextCodec::codecForName("UTF-8")->toUnicode("–û—Ç–∫—É–¥–∞");
 
 WidgetSender::WidgetSender( QWidget * parent )
 	: WidgetContact( parent )

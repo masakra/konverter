@@ -5,8 +5,6 @@
  *   ICQ: 124231040                                                        *
  *   jabber: masakra@jabber.ru                                             *
  *                                                                         *
- *   All comments, if not ascii, in koi8-r                                 *
- *                                                                         *
  *   Permission is hereby granted, free of charge, to any person obtaining *
  *   a copy of this software and associated documentation files (the       *
  *   "Software"), to deal in the Software without restriction, including   *
@@ -124,13 +122,13 @@ FormMain::refresh( int id )
 void
 FormMain::createActions()
 {
-	actionSelectFont = new QAction( QIcon(":/font.png"), "Выбрать шрифт", this );
+	actionSelectFont = new QAction( QIcon(":/font.png"), "п▓я▀п╠я─п╟я┌я▄ я┬я─п╦я└я┌", this );
 }
 
 void
 FormMain::createToolBar()
 {
-	QToolBar * toolBar = new QToolBar( "Действия", this );
+	QToolBar * toolBar = new QToolBar( "п■п╣п╧я│я┌п╡п╦я▐", this );
 	toolBar->addAction( actionSelectFont );
 }
 
@@ -162,7 +160,7 @@ FormMain::createWidgets()
 	table->resize( 300, 100 );
 
 	editFilter = new QLineEdit( centralWidget );
-	editFilter->setToolTip( "Фильтр по имени или почтовому индексу" );
+	editFilter->setToolTip( "п╓п╦п╩я▄я┌я─ п©п╬ п╦п╪п╣п╫п╦ п╦п╩п╦ п©п╬я┤я┌п╬п╡п╬п╪я┐ п╦п╫п╢п╣п╨я│я┐" );
 
 	connect( editFilter, SIGNAL( textChanged( const QString & ) ),
 			SLOT( filterChanged( const QString & ) ) );
@@ -182,23 +180,23 @@ FormMain::createWidgets()
 
 	buttonPrint->setIconSize( QSize( 97, 61 ) );
 	buttonPrint->setIcon( QIcon(":/postmark.png") );
-	buttonPrint->setToolTip( "Печать, c Ctrl - выбор принтера" );
+	buttonPrint->setToolTip( "п÷п╣я┤п╟я┌я▄, c Ctrl - п╡я▀п╠п╬я─ п©я─п╦п╫я┌п╣я─п╟" );
 
 	buttonAdd->setIconSize( QSize( 48, 48 ) );
 	buttonAdd->setIcon( QIcon(":/add.png") );
-	buttonAdd->setToolTip( "Добавить контакт" );
+	buttonAdd->setToolTip( "п■п╬п╠п╟п╡п╦я┌я▄ п╨п╬п╫я┌п╟п╨я┌" );
 
 	buttonDel->setIconSize( QSize( 48, 48 ) );
 	buttonDel->setIcon( QIcon(":/delete.png") );
-	buttonDel->setToolTip( "Удалить контакт" );
+	buttonDel->setToolTip( "пёп╢п╟п╩п╦я┌я▄ п╨п╬п╫я┌п╟п╨я┌" );
 
 	buttonReport->setIconSize( QSize( 48, 48 ) );
 	buttonReport->setIcon( QIcon( ":/report.png") );
-	buttonReport->setToolTip( "Сформировать реестр за дату" );
+	buttonReport->setToolTip( "п║я└п╬я─п╪п╦я─п╬п╡п╟я┌я▄ я─п╣п╣я│я┌я─ п╥п╟ п╢п╟я┌я┐" );
 
 	buttonAbout->setIconSize( QSize( 48, 48 ) );
 	buttonAbout->setIcon( qApp->windowIcon() );
-	buttonAbout->setToolTip( "О программе" );
+	buttonAbout->setToolTip( "п· п©я─п╬пЁя─п╟п╪п╪п╣" );
 
 	connect( buttonAdd, SIGNAL( clicked() ), SLOT( addContact() ) );
 
@@ -213,13 +211,13 @@ FormMain::createWidgets()
 	comboPaperSize = new QComboBox( centralWidget );
 
 	comboIshod = new QComboBox( centralWidget );
-	comboIshod->addItem( "Исходящий", QString("Исх. %1").arg( QChar( 0x2116 ) ) );
-	comboIshod->addItem( "Счёт-фактура", "с/ф" );
-	comboIshod->addItem( "Счёт", "cчёт" );
+	comboIshod->addItem( "п≤я│я┘п╬п╢я▐я┴п╦п╧", QString("п≤я│я┘. %1").arg( QChar( 0x2116 ) ) );
+	comboIshod->addItem( "п║я┤я▒я┌-я└п╟п╨я┌я┐я─п╟", "я│/я└" );
+	comboIshod->addItem( "п║я┤я▒я┌", "cя┤я▒я┌" );
 
 	editIshod = new QLineEdit( centralWidget );
 
-	checkZakaz = new QCheckBox( "&заказное", centralWidget );
+	checkZakaz = new QCheckBox( "&п╥п╟п╨п╟п╥п╫п╬п╣", centralWidget );
 
 	QHBoxLayout * layoutControls = new QHBoxLayout(),
 				* layoutIshod = new QHBoxLayout(),
@@ -301,7 +299,7 @@ FormMain::setSenderData()
 					q.value( 1 ).toString(),
 					q.value( 2 ).toString() );
 		else
-			_yell("Запись отправителя (id=0) не найдена");
+			_yell("п≈п╟п©п╦я│я▄ п╬я┌п©я─п╟п╡п╦я┌п╣п╩я▐ (id=0) п╫п╣ п╫п╟п╧п╢п╣п╫п╟");
 
 	} else
 		_yell( q );
@@ -328,10 +326,10 @@ FormMain::contactChanged( const QModelIndex & current, const QModelIndex & )
 void
 FormMain::setCount( int rows )
 {
-	QString s( "записей: " );
+	QString s( "п╥п╟п©п╦я│п╣п╧: " );
 
 	if ( model->canFetchMore() )
-		s += "более ";
+		s += "п╠п╬п╩п╣п╣ ";
 
 	labelCount->setText( s += QString::number( rows ) );
 }
@@ -387,9 +385,9 @@ FormMain::print()
 	}
 
 	if ( editIshod->text().trimmed().isEmpty() ) {
-		if ( QMessageBox::warning( this, "Предупреждение",
-				"Не заполнено поле " + comboIshod->currentText() +
-				".\nПродолжить?",
+		if ( QMessageBox::warning( this, "п÷я─п╣п╢я┐п©я─п╣п╤п╢п╣п╫п╦п╣",
+				"п²п╣ п╥п╟п©п╬п╩п╫п╣п╫п╬ п©п╬п╩п╣ " + comboIshod->currentText() +
+				".\nп÷я─п╬п╢п╬п╩п╤п╦я┌я▄?",
 				QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes ) == QMessageBox::No )
 			return;
 	}
@@ -406,8 +404,8 @@ FormMain::print()
 
 	if ( printSide( e, 1 ) ) {
 
-		if ( QMessageBox::information( this, "Вторая сторона",
-				"Печать второй стороны.",
+		if ( QMessageBox::information( this, "п▓я┌п╬я─п╟я▐ я│я┌п╬я─п╬п╫п╟",
+				"п÷п╣я┤п╟я┌я▄ п╡я┌п╬я─п╬п╧ я│я┌п╬я─п╬п╫я▀.",
 				QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes ) == QMessageBox::Yes )
 			printSide( e, 2 );
 	}
@@ -422,10 +420,10 @@ FormMain::printSide( const Envelope & e, int side )
 				recipientWho = recipient->whoList( e.recipientWidth() ),
 				recipientWhere = recipient->whereList( e.recipientWidth() );
 
-	if ( ! checkSize( senderWho, e.senderWhoRowCount(), "От кого отправителя" ) ||
-			! checkSize( senderWhere, e.senderWhereRowCount(), "Откуда отправителя" ) ||
-			! checkSize( recipientWho, e.recipientWhoRowCount(), "Кому адресата" ) ||
-			! checkSize( recipientWhere, e.recipientWhereRowCount(), "Куда адресата" ) )
+	if ( ! checkSize( senderWho, e.senderWhoRowCount(), "п·я┌ п╨п╬пЁп╬ п╬я┌п©я─п╟п╡п╦я┌п╣п╩я▐" ) ||
+			! checkSize( senderWhere, e.senderWhereRowCount(), "п·я┌п╨я┐п╢п╟ п╬я┌п©я─п╟п╡п╦я┌п╣п╩я▐" ) ||
+			! checkSize( recipientWho, e.recipientWhoRowCount(), "п п╬п╪я┐ п╟п╢я─п╣я│п╟я┌п╟" ) ||
+			! checkSize( recipientWhere, e.recipientWhereRowCount(), "п я┐п╢п╟ п╟п╢я─п╣я│п╟я┌п╟" ) )
 		return false;
 
 	/// printing
@@ -453,7 +451,7 @@ FormMain::printSide( const Envelope & e, int side )
 		for ( int i = 0; i < senderWhere.size() && i < e.senderWhereRowCount(); ++i )
 			painter.drawText( 0, ( i + e.senderWhoRowCount() ) * e.rowHeight(), senderWhere[ i ] );
 
-		// исходящий номер
+		// п╦я│я┘п╬п╢я▐я┴п╦п╧ п╫п╬п╪п╣я─
 		QString ishod = editIshod->text().trimmed();
 
 		if ( ! ishod.isEmpty() ) {
@@ -571,9 +569,9 @@ FormMain::modifyRecipient( const QString & field, const QString & text )
 			modifyContact( field, text, id );
 			refresh( id );
 		} else {
-			QMessageBox::warning( this, "Предупреждение",
-					"Не выбрана ни одна запись.\n"
-					"Изменения будут проигнорированы." );
+			QMessageBox::warning( this, "п÷я─п╣п╢я┐п©я─п╣п╤п╢п╣п╫п╦п╣",
+					"п²п╣ п╡я▀п╠я─п╟п╫п╟ п╫п╦ п╬п╢п╫п╟ п╥п╟п©п╦я│я▄.\n"
+					"п≤п╥п╪п╣п╫п╣п╫п╦я▐ п╠я┐п╢я┐я┌ п©я─п╬п╦пЁп╫п╬я─п╦я─п╬п╡п╟п╫я▀." );
 		}
 	}
 }
@@ -623,7 +621,7 @@ FormMain::insertContact( const QString & field, const QString & text ) const
 		sql += "'', '', '', :text";
 
 	else {
-		_yell( QString("Неизвестное поле: %1").arg( field ) );
+		_yell( QString("п²п╣п╦п╥п╡п╣я│я┌п╫п╬п╣ п©п╬п╩п╣: %1").arg( field ) );
 		return -1;
 	}
 
@@ -671,13 +669,13 @@ FormMain::delContact()
 	if ( ! table->selectionModel() )
 		return;
 
-	if ( QMessageBox::question( this, "Подтвердите", "Действительно удалить контакт?",
+	if ( QMessageBox::question( this, "п÷п╬п╢я┌п╡п╣я─п╢п╦я┌п╣", "п■п╣п╧я│я┌п╡п╦я┌п╣п╩я▄п╫п╬ я┐п╢п╟п╩п╦я┌я▄ п╨п╬п╫я┌п╟п╨я┌?",
 				QMessageBox::Yes | QMessageBox::No, QMessageBox::No ) == QMessageBox::No )
 		return;
 
 	QSqlQuery q;
 
-	// TODO удалить все записи из журнала, или не надо, ON DELETE CASCADE, проверить
+	// TODO я┐п╢п╟п╩п╦я┌я▄ п╡я│п╣ п╥п╟п©п╦я│п╦ п╦п╥ п╤я┐я─п╫п╟п╩п╟, п╦п╩п╦ п╫п╣ п╫п╟п╢п╬, ON DELETE CASCADE, п©я─п╬п╡п╣я─п╦я┌я▄
 
 	q.prepare( QString("DELETE FROM "
 				"%1 "
@@ -711,9 +709,9 @@ FormMain::currentId() const
 void
 FormMain::about()
 {
-	QMessageBox::about( this, "О программе",
+	QMessageBox::about( this, "п· п©я─п╬пЁя─п╟п╪п╪п╣",
 			QString("<H3>%1 v.%2</H3>").arg( qApp->applicationName(), qApp->applicationVersion() ) +
-				"2012 г. ЗАО " + QChar(0xAB) + QString("Нордавиа-РА") + QChar(0xBB) + "<BR><BR>" +
+				"2012 пЁ. п≈п░п· " + QChar(0xAB) + QString("п²п╬я─п╢п╟п╡п╦п╟-п═п░") + QChar(0xBB) + "<BR><BR>" +
 				"e-mail: <A HREF='mailto:masakra@mail.ru'>masakra@mail.ru</A><BR>"
 				"ICQ: 124231040<BR>"
 				"jabber: masakra@jabber.ru" );
@@ -831,12 +829,12 @@ FormMain::checkSize( const QStringList & list, int count, const QString & text )
 	for ( int i = 0; i < list.size() && i < count; ++i )
 		l << list[ i ];
 
-	if ( QMessageBox::warning( this, "Предупреждение",
-				QString("%1 не помещается!\n\n"
+	if ( QMessageBox::warning( this, "п÷я─п╣п╢я┐п©я─п╣п╤п╢п╣п╫п╦п╣",
+				QString("%1 п╫п╣ п©п╬п╪п╣я┴п╟п╣я┌я│я▐!\n\n"
 					"< %2 >.\n\n"
-					"Полный текст:\n\n"
+					"п÷п╬п╩п╫я▀п╧ я┌п╣п╨я│я┌:\n\n"
 					"< %3 >.\n\n"
-					"Продолжить печать?")
+					"п÷я─п╬п╢п╬п╩п╤п╦я┌я▄ п©п╣я┤п╟я┌я▄?")
 						.arg( text )
 						.arg( l.join("\n") )
 						.arg( list.join("\n") ),
@@ -991,7 +989,7 @@ QString
 FormMain::dataPath() const
 {
 #ifdef Q_WS_WIN
-	// находит SysDrive:\Document And Settings\All Users\Application Data
+	// п╫п╟я┘п╬п╢п╦я┌ SysDrive:\Document And Settings\All Users\Application Data
 
 	QString winMapPath;
 

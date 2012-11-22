@@ -108,7 +108,7 @@ WidgetContact::selectAddressFont()
 {
 	bool ok;
 
-	QFont fnt = QFontDialog::getFont( &ok, addressFont, this, "÷ÙÂÅÒÉ ÛÒÉÆÔ" );
+	QFont fnt = QFontDialog::getFont( &ok, addressFont, this, "Ð’Ñ‹Ð±ÐµÑ€Ð¸ ÑˆÑ€Ð¸Ñ„Ñ‚" );
 
 	if ( ok ) {
 		setAddressFont( fnt );
@@ -139,11 +139,11 @@ WidgetContact::mousePressEvent( QMouseEvent * event )
 
 		QMenu menu;
 
-		menu.addAction( "õÓÔÁÎÏ×ÉÔØ " + whoStr(), this, SLOT( setWho() ) );
-		menu.addAction( "õÓÔÁÎÏ×ÉÔØ " + whereStr(), this, SLOT( setWhere() ) );
-		menu.addAction( "õÓÔÁÎÏ×ÉÔØ éÎÄÅËÓ", this, SLOT( setIndex() ) );
+		menu.addAction( "Ð£ÑÑ‚Ð°Ð½Ð¾Ð²Ð¸Ñ‚ÑŒ " + whoStr(), this, SLOT( setWho() ) );
+		menu.addAction( "Ð£ÑÑ‚Ð°Ð½Ð¾Ð²Ð¸Ñ‚ÑŒ " + whereStr(), this, SLOT( setWhere() ) );
+		menu.addAction( "Ð£ÑÑ‚Ð°Ð½Ð¾Ð²Ð¸Ñ‚ÑŒ Ð˜Ð½Ð´ÐµÐºÑ", this, SLOT( setIndex() ) );
 		menu.addSeparator();
-		menu.addAction( "÷ÙÂÒÁÔØ &ÛÒÉÆÔ", this, SLOT( selectAddressFont() ) );
+		menu.addAction( "Ð’Ñ‹Ð±Ñ€Ð°Ñ‚ÑŒ &ÑˆÑ€Ð¸Ñ„Ñ‚", this, SLOT( selectAddressFont() ) );
 
 		menu.exec( event->globalPos() );
 	}

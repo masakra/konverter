@@ -5,8 +5,6 @@
  *   ICQ: 124231040                                                        *
  *   jabber: masakra@jabber.ru                                             *
  *                                                                         *
- *   All comments, if not ascii, in koi8-r                                 *
- *                                                                         *
  *   Permission is hereby granted, free of charge, to any person obtaining *
  *   a copy of this software and associated documentation files (the       *
  *   "Software"), to deal in the Software without restriction, including   *
@@ -43,7 +41,7 @@ Envelope::Envelope( const QString & line )
 	QStringList list = line.split( "|", QString::SkipEmptyParts );
 
 	if ( list.size() != 19 ) {
-		_yell( "Количество параметров конверта должно быть 19" );
+		_yell( "п п╬п╩п╦я┤п╣я│я┌п╡п╬ п©п╟я─п╟п╪п╣я┌я─п╬п╡ п╨п╬п╫п╡п╣я─я┌п╟ п╢п╬п╩п╤п╫п╬ п╠я▀я┌я▄ 19" );
 		return;
 	}
 

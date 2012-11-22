@@ -61,7 +61,7 @@ Report::makeReport( const DialogReport & dialog )
 	QString text = QString("<TABLE BORDER=0 BGCOLOR=white CELLSPACING=0 WIDTH=700>"
 		"<TR>"
 		  "<TD ALIGN=left>"
-		    "<FONT SIZE=1 COLOR=lightgray>ЗАО %1Нордавиа-РА%2</FONT>"
+		    "<FONT SIZE=1 COLOR=lightgray>п≈п░п· %1п²п╬я─п╢п╟п╡п╦п╟-п═п░%2</FONT>"
 		  "</TD>"
 		  "<TD ALIGN=right>"
 		    "<FONT SIZE=1 COLOR=lightgray>%3 v.%4 %5</FONT>"
@@ -75,7 +75,7 @@ Report::makeReport( const DialogReport & dialog )
 
 	text += QString("<TR>"
 			  "<TD COLSPAN=2 ALIGN=center>"
-			    "<H3><I>Реестр за %1</I></H3><BR>"
+			    "<H3><I>п═п╣п╣я│я┌я─ п╥п╟ %1</I></H3><BR>"
 			  "</TD>"
 			"</TR>")
 		.arg( dialog.date().toString("dd.MM.yyyy") );
@@ -86,11 +86,11 @@ Report::makeReport( const DialogReport & dialog )
 			"<TABLE CELLSPACING=1 CELLPADDING=7 BGCOLOR=%1 WIDTH=100%>"
 			  "<TR>"
 			    "<TH BGCOLOR=%2>%3</TH>"
-			    "<TH BGCOLOR=%2>Город</TH>"
-			    "<TH BGCOLOR=%2>Адресат</TH>"
-				"<TH BGCOLOR=%2>Исх. / с/ф</TH>"
-				//"<TH BGCOLOR=%2>Время</TH>"
-				"<TH BGCOLOR=%2>Прим.</TH>"
+			    "<TH BGCOLOR=%2>п⌠п╬я─п╬п╢</TH>"
+			    "<TH BGCOLOR=%2>п░п╢я─п╣я│п╟я┌</TH>"
+				"<TH BGCOLOR=%2>п≤я│я┘. / я│/я└</TH>"
+				//"<TH BGCOLOR=%2>п▓я─п╣п╪я▐</TH>"
+				"<TH BGCOLOR=%2>п÷я─п╦п╪.</TH>"
 			  "</TR>")
 		.arg( "lightskyblue", "paleturquoise" )
 		.arg( QChar( 0x2116 ) );
@@ -112,7 +112,7 @@ Report::makeReport( const DialogReport & dialog )
 
 		case DialogReport::Time:
 		default:
-			orderColumn = "5";	// по-умолчанию по городу
+			orderColumn = "5";	// п©п╬-я┐п╪п╬п╩я┤п╟п╫п╦я▌ п©п╬ пЁп╬я─п╬п╢я┐
 	}
 
 	QSqlQuery q;
@@ -170,7 +170,7 @@ Report::makeReport( const DialogReport & dialog )
 			  //text += "</TD>";
 
 			  text += QString("<TD BGCOLOR=%1>").arg( bgcolor );
-			  text += ( q.value( 5 ).toInt() == 1 ? "заказное" : "" );
+			  text += ( q.value( 5 ).toInt() == 1 ? "п╥п╟п╨п╟п╥п╫п╬п╣" : "" );
 			  text += "</TD>";
 
 			text += "</TR>";
@@ -191,11 +191,11 @@ Report::contextMenuEvent( QContextMenuEvent * event )
 {
 	QMenu * menu = createStandardContextMenu();
 
-	QAction * actionPrint = menu->addAction( "Печатать..." );
+	QAction * actionPrint = menu->addAction( "п÷п╣я┤п╟я┌п╟я┌я▄..." );
 	actionPrint->setShortcut( Qt::CTRL + Qt::Key_P );
 	connect( actionPrint, SIGNAL( triggered() ), SLOT( printToPrinter() ) );
 
-	QAction * actionToPdf = menu->addAction( "Сохранить в PDF..." );
+	QAction * actionToPdf = menu->addAction( "п║п╬я┘я─п╟п╫п╦я┌я▄ п╡ PDF..." );
 	actionToPdf->setShortcut( Qt::CTRL + Qt::Key_E );
 	connect( actionToPdf, SIGNAL( triggered() ), SLOT( saveToPdf() ) );
 
@@ -223,7 +223,7 @@ Report::saveToPdf()
 {
 	QSettings settings;
 
-	QString fileName = QFileDialog::getSaveFileName( 0, "Сохранит в PDF",
+	QString fileName = QFileDialog::getSaveFileName( 0, "п║п╬я┘я─п╟п╫п╦я┌ п╡ PDF",
 			settings.value( DIR_PATH, ".").toString() +
 			QDir::separator() + defaultFileName,
 			tr("PDF files (*.pdf)"));

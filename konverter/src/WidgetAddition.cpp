@@ -14,12 +14,12 @@ void
 WidgetAddition::createWidgets()
 {
 	editCity = new LineEdit( this );
-	editCity->setToolTip( "éÚÍÅÎÉ É ÎÁÖÍÉ Enter" );
+	editCity->setToolTip( "Ð˜Ð·Ð¼ÐµÐ½Ð¸ Ð¸ Ð½Ð°Ð¶Ð¼Ð¸ Enter" );
 
 	connect( editCity, SIGNAL( returnPressed() ), SLOT( editReturned() ) );
 	connect( editCity, SIGNAL( escapePressed() ), SLOT( editEscaped() ) );
 
-	QLabel * labelCity = new QLabel( "&çÏÒÏÄ", this );
+	QLabel * labelCity = new QLabel( "&Ð“Ð¾Ñ€Ð¾Ð´", this );
 
 	labelCity->setBuddy( editCity );
 

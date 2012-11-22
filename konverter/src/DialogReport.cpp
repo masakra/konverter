@@ -5,8 +5,6 @@
  *   ICQ: 124231040                                                        *
  *   jabber: masakra@jabber.ru                                             *
  *                                                                         *
- *   All comments, if not ascii, in koi8-r                                 *
- *                                                                         *
  *   Permission is hereby granted, free of charge, to any person obtaining *
  *   a copy of this software and associated documentation files (the       *
  *   "Software"), to deal in the Software without restriction, including   *
@@ -34,7 +32,7 @@
 DialogReport::DialogReport( QWidget * parent )
 	: QDialog( parent )
 {
-	setWindowTitle( "öÕÒÎÁÌ" );
+	setWindowTitle( "Ð–ÑƒÑ€Ð½Ð°Ð»" );
 	createWidgets();
 }
 
@@ -44,14 +42,14 @@ DialogReport::createWidgets()
 	editDate = new QDateTimeEdit( QDate::currentDate(), this );
 	editDate->setDisplayFormat( "dd.MM.yyyy" );
 
-	radioWho = new QRadioButton( "ÐÏ ÁÄÒÅÓÁÔÕ", this );
+	radioWho = new QRadioButton( "Ð¿Ð¾ Ð°Ð´Ñ€ÐµÑÐ°Ñ‚Ñƒ", this );
 	radioWho->setChecked( true );
 
-	radioIshod = new QRadioButton( "ÐÏ ÉÓÈÏÄÑÝÅÍÕ", this );
+	radioIshod = new QRadioButton( "Ð¿Ð¾ Ð¸ÑÑ…Ð¾Ð´ÑÑ‰ÐµÐ¼Ñƒ", this );
 
-	radioTime = new QRadioButton( "ÐÏ ×ÒÅÍÅÎÉ", this );
+	radioTime = new QRadioButton( "Ð¿Ð¾ Ð²Ñ€ÐµÐ¼ÐµÐ½Ð¸", this );
 
-	radioCity = new QRadioButton( "ÐÏ ÇÏÒÏÄÕ", this );
+	radioCity = new QRadioButton( "Ð¿Ð¾ Ð³Ð¾Ñ€Ð¾Ð´Ñƒ", this );
 
 	QVBoxLayout * layoutOrder = new QVBoxLayout();
 
@@ -60,7 +58,7 @@ DialogReport::createWidgets()
 	layoutOrder->addWidget( radioTime );
 	layoutOrder->addWidget( radioCity );
 
-	QGroupBox * groupOrder = new QGroupBox( "óÏÒÔÉÒÏ×ÁÔØ", this );
+	QGroupBox * groupOrder = new QGroupBox( "Ð¡Ð¾Ñ€Ñ‚Ð¸Ñ€Ð¾Ð²Ð°Ñ‚ÑŒ", this );
 
 	groupOrder->setLayout( layoutOrder );
 
