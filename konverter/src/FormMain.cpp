@@ -32,7 +32,9 @@
 #include "_.h"
 #include "DialogConnect.h"
 #include "DialogReport.h"
+#include "DialogReportEdit.h"
 #include "Report.h"
+#include "ReportEdit.h"
 #include "SqlQueryModel.h"
 #include "WidgetAddition.h"
 #include "WidgetRecipient.h"
@@ -89,11 +91,11 @@ FormMain::refresh( int id )
 		"FROM "
 			"%1 "
 		"WHERE "
-			"id != 0 "
+			"id != 0 "	// 0 is a sender
 			"%2 "
 		"ORDER BY "
 			"touch DESC ")
-			.arg( tableName( "contact" ) )
+			.arg( _tableName( "contact" ) )
 			.arg( editFilter->text().isEmpty() ? "":
 				QString("AND ( UPPER( who ) like UPPER( '%%1%' ) "
 						   "OR UPPER( ind ) like UPPER( '%%1%' ) )").arg( editFilter->text() ) ) );
@@ -291,7 +293,7 @@ FormMain::setSenderData()
 			"%1 "
 		"WHERE "
 			"id = 0")	// not id as variant )))
-			.arg( tableName( "contact" ) ) );
+			.arg( _tableName( "contact" ) ) );
 
 	if ( q.exec() ) {
 		if ( q.first() )
@@ -529,7 +531,7 @@ FormMain::modifyContact( const QString & field, const QString & text, int id ) c
 			"%2 = :text "
 		"WHERE "
 			"id = :id")
-			.arg( tableName( "contact" ) )
+			.arg( _tableName( "contact" ) )
 			.arg( field ) );
 
 	q.bindValue(":text", text );
@@ -604,7 +606,7 @@ int
 FormMain::insertContact( const QString & field, const QString & text ) const
 {
 	QString sql( QString("INSERT INTO %1 ( who, whe, ind, city, touch ) VALUES (" )
-			.arg( tableName( "contact" ) ) );
+			.arg( _tableName( "contact" ) ) );
 
 	QSqlQuery q;
 
@@ -681,7 +683,7 @@ FormMain::delContact()
 				"%1 "
 			"WHERE "
 				"id = :id")
-			.arg( tableName( "contact" ) ) );
+			.arg( _tableName( "contact" ) ) );
 
 	q.bindValue(":id", currentId() );
 
@@ -726,12 +728,26 @@ FormMain::filterChanged( const QString & /*text*/ )
 void
 FormMain::report()
 {
-	DialogReport d;
+	Qt::KeyboardModifiers modifiers = qApp->keyboardModifiers();
 
-	if ( d.exec() ) {
-		Report * rep = new Report();
-		rep->resize( 600, 450 );
-		rep->show( d );
+	if ( modifiers & Qt::ControlModifier ) {
+		DialogReportEdit d;
+
+		if ( d.exec() ) {
+			ReportEdit * repEdit = new ReportEdit( d.date() );
+			repEdit->resize( 600, 450 );
+			repEdit->show();
+		}
+
+	} else {
+
+		DialogReport d;
+
+		if ( d.exec() ) {
+			Report * rep = new Report();
+			rep->resize( 600, 450 );
+			rep->show( d );
+		}
 	}
 }
 
@@ -755,7 +771,7 @@ FormMain::writeLog() const
 			":numt, "
 			":num, "
 			":zak )")
-			.arg( tableName( "log" ) ) );
+			.arg( _tableName( "log" ) ) );
 
 	q.bindValue(":id", id );
 	q.bindValue(":numt", comboIshod->itemData( comboIshod->currentIndex() ).toString() );

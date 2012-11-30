@@ -47,7 +47,7 @@ _yell( const QSqlQuery & query )
 bool _dbPg( false );
 
 QString
-tableName( const QString & table )
+_tableName( const QString & table )
 {
 	if ( _dbPg )
 		return QString( "\"konverter\".\"%1\"" ).arg( table );

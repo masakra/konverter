@@ -25,20 +25,36 @@
  *   OTHER DEALINGS IN THE SOFTWARE.                                       *
  ***************************************************************************/
 
-#ifndef __H
-#define __H
+#ifndef REPORTEDIT_H
+#define REPORTEDIT_H
 
-#include <QString>
+#include <QTableView>
 
-class QSqlQuery;
+#include <QDate>
 
-extern void _yell( const QString & text );
+class QSqlQueryModel;
 
-extern void _yell( const QSqlQuery & query );
+class ReportEdit : public QTableView
+{
+	Q_OBJECT
 
-extern bool _dbPg;
+	private:
+		QDate date;
 
-extern QString _tableName( const QString & table );
+		void refresh( const QDateTime & key = QDateTime() );
+
+		QSqlQueryModel * model;
+
+		void deleteRecord( const QDateTime & key, int row );
+
+		void toggleZakaz( const QDateTime & key );
+
+	private Q_SLOTS:
+		void doubleClicked( const QModelIndex & index );
+
+	public:
+		ReportEdit( const QDate & d, QWidget * parent = 0 );
+};
 
 #endif
 

@@ -25,20 +25,29 @@
  *   OTHER DEALINGS IN THE SOFTWARE.                                       *
  ***************************************************************************/
 
-#ifndef __H
-#define __H
+#ifndef DIALOGREPORTEDIT_H
+#define DIALOGREPORTEDIT_H
 
-#include <QString>
+#include <QDialog>
 
-class QSqlQuery;
+#include <QDate>
 
-extern void _yell( const QString & text );
+class QDateTimeEdit;
 
-extern void _yell( const QSqlQuery & query );
+class DialogReportEdit : public QDialog
+{
+	Q_OBJECT
 
-extern bool _dbPg;
+	private:
+		void createWidgets();
 
-extern QString _tableName( const QString & table );
+		QDateTimeEdit * editDate;
+
+	public:
+		DialogReportEdit( QWidget * parent = 0 );
+
+		QDate date() const;
+};
 
 #endif
 

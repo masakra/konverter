@@ -37,6 +37,8 @@
 Report::Report( QWidget * parent )
 	: QTextEdit( parent )
 {
+	setAttribute( Qt::WA_DeleteOnClose );
+
 	setWindowIcon( QIcon(":/report.png") );
 
 	printer.setPageMargins( 5, 5, 5, 5, QPrinter::Millimeter );
@@ -133,8 +135,8 @@ Report::makeReport( const DialogReport & dialog )
 		"ORDER BY "
 			"%5 ")
 			.arg( _dbPg ? "\"time\"( drec )" : "substr( l.timestamp, 12 )" )
-			.arg( tableName( "log" ) )
-			.arg( tableName( "contact" ) )
+			.arg( _tableName( "log" ) )
+			.arg( _tableName( "contact" ) )
 			.arg( _dbPg ? "date( drec ) = :date" : "substr( l.timestamp, 1, 10 ) = :date " )
 			.arg( orderColumn ) );
 

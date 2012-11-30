@@ -25,20 +25,43 @@
  *   OTHER DEALINGS IN THE SOFTWARE.                                       *
  ***************************************************************************/
 
-#ifndef __H
-#define __H
+#include "DialogReportEdit.h"
 
-#include <QString>
+#include <QtGui>
 
-class QSqlQuery;
+DialogReportEdit::DialogReportEdit( QWidget * parent )
+	: QDialog( parent )
+{
+	createWidgets();
+}
 
-extern void _yell( const QString & text );
+void
+DialogReportEdit::createWidgets()
+{
+	editDate = new QDateTimeEdit( QDate::currentDate(), this );
+	editDate->setDisplayFormat( "dd.MM.yyyy" );
 
-extern void _yell( const QSqlQuery & query );
+	QLabel * labelDate = new QLabel( "Дата", this );
 
-extern bool _dbPg;
+	labelDate->setBuddy( editDate );
 
-extern QString _tableName( const QString & table );
+	QDialogButtonBox * buttonBox = new QDialogButtonBox( QDialogButtonBox::Ok |
+			QDialogButtonBox::Cancel );
 
-#endif
+	connect( buttonBox, SIGNAL( accepted() ), SLOT( accept() ) );
+	connect( buttonBox, SIGNAL( rejected() ), SLOT( reject() ) );
+
+	QGridLayout * layout = new QGridLayout( this );
+
+	layout->addWidget( labelDate, 0, 0 );
+	layout->addWidget( editDate, 0, 1 );
+	layout->addWidget( buttonBox, 1, 0, 1, 2 );
+}
+
+QDate
+DialogReportEdit::date() const
+{
+	return editDate->date();
+}
+
 
