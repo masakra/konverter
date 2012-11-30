@@ -27,6 +27,25 @@
  *   OTHER DEALINGS IN THE SOFTWARE.                                       *
  ***************************************************************************/
 
+/** \mainpage The Konverter
+ *
+ * there are 2 modes
+ *
+ * 1. sqlite mode
+ *  >./konverter
+ *
+ * 2. postgresql mode
+ *
+ * With DialogConnect
+ *	>./konverter -p
+ * Without DialogConnect
+ *	>./konverter -p host:db:port:user:password
+ *	>./konverter -p host:db:user:password
+ *	>./konverter -p host:db:user
+ *	>./konverter -p db:user
+ *	>./konverter -p db
+ */
+
 #include <QApplication>
 #include <QTextCodec>
 
