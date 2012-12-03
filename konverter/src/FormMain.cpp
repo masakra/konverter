@@ -97,8 +97,8 @@ FormMain::refresh( int id )
 			"touch DESC ")
 			.arg( _tableName( "contact" ) )
 			.arg( editFilter->text().isEmpty() ? "":
-				QString("AND ( UPPER( who ) like UPPER( '%%1%' ) "
-						   "OR UPPER( ind ) like UPPER( '%%1%' ) )").arg( editFilter->text() ) ) );
+				QString("AND ( UPPER( who ) like '%%1%' "
+						   "OR UPPER( ind ) like '%%1%' )").arg( editFilter->text().toUpper() ) ) );
 
 	table->setModel( model );
 	table->hideColumn( 0 );

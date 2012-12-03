@@ -107,18 +107,51 @@ ReportEdit::doubleClicked( const QModelIndex & index )
 
 	//qDebug() << key.toString("yyyy-MM-dd hh:mm:ss:zzz");
 
+	switch ( index.column() ) {
+		case 1:
+			if ( QMessageBox::question( this, "Подтверджение", "Удалить запись?",
+						QMessageBox::Yes | QMessageBox::No, QMessageBox::No ) == QMessageBox::Yes ) {
+				deleteRecord( key, row );
+			}
+			break;
+
+		case 2:
+			modifyNumText( key, row );
+			break;
+
+		case 3:
+			modifyNum( key, row );
+			break;
+
+		case 4: {
+			toggleZakaz( key );
+			break;
+		}
+
+		default:
+			;
+	}
+
+	/*
 	if ( index.column() == 1 &&
 			QMessageBox::question( this, "Подтверджение", "Удалить запись?",
 				QMessageBox::Yes | QMessageBox::No, QMessageBox::No ) == QMessageBox::Yes ) {
 
-		deleteRecord( key, row );
 		return;
 	}
+
+	if ( index.column() == 2 ) {
+		modifyNumText();
+		return;
+	}
+
+	if ( index.column() == 3 ) 
 
 	if ( index.column() == 4 ) {
 		toggleZakaz( key );
 		return;
 	}
+	*/
 }
 
 void
@@ -160,6 +193,74 @@ ReportEdit::toggleZakaz( const QDateTime & key )
 		.arg( _tableName( "log" ) )
 		.arg( _dbPg ? "date_trunc( 'second', drec ) = :dt" :
 				QString("timestamp = '%1'").arg( key.toString("yyyy-MM-dd hh:mm:ss") ) ) );
+
+	if ( _dbPg )
+		q.bindValue(":dt", key );
+
+	if ( q.exec() )
+		refresh( key );
+	else
+		_yell( q );
+}
+
+void
+ReportEdit::modifyNumText( const QDateTime & key, int row )
+{
+	const QString oldText = model->index( row, 2 ).data().toString();
+
+	bool ok;
+
+	const QString newText = QInputDialog::getText( this, "Изменить", "Исх. / с/ф текст", QLineEdit::Normal,
+			oldText, &ok );
+
+	if ( ! ok || oldText == newText )
+		return;
+
+	QSqlQuery q;
+
+	q.prepare( QString("UPDATE %1 SET "
+				"num_text = :numt "
+			"WHERE "
+				"%2")
+		.arg( _tableName( "log" ) )
+		.arg( _dbPg ? "date_trunc( 'second', drec ) = :dt" :
+				QString("timestamp = '%1'").arg( key.toString("yyyy-MM-dd hh:mm:ss") ) ) );
+
+	q.bindValue(":numt", newText );
+
+	if ( _dbPg )
+		q.bindValue(":dt", key );
+
+	if ( q.exec() )
+		refresh( key );
+	else
+		_yell( q );
+}
+
+void
+ReportEdit::modifyNum( const QDateTime & key, int row )
+{
+	const QString oldText = model->index( row, 3 ).data().toString();
+
+	bool ok;
+
+	const QString newText = QInputDialog::getText( this, "Изменить", "Исх. / с/ф", QLineEdit::Normal,
+			oldText, &ok );
+
+	if ( ! ok || oldText == newText )
+		return;
+
+	QSqlQuery q;
+
+	q.prepare( QString("UPDATE %1 SET "
+				"num = :num "
+			"WHERE "
+				"%2")
+		.arg( _tableName( "log" ) )
+		.arg( _dbPg ? "date_trunc( 'second', drec ) = :dt" :
+				QString("timestamp = '%1'").arg( key.toString("yyyy-MM-dd hh:mm:ss") ) ) );
+
+	q.bindValue(":num", newText );
 
 	if ( _dbPg )
 		q.bindValue(":dt", key );

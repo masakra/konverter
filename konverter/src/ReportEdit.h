@@ -52,6 +52,10 @@ class ReportEdit : public QTableView
 	private Q_SLOTS:
 		void doubleClicked( const QModelIndex & index );
 
+		void modifyNumText( const QDateTime & key, int row );
+
+		void modifyNum( const QDateTime & key, int row );
+
 	public:
 		ReportEdit( const QDate & d, QWidget * parent = 0 );
 };
