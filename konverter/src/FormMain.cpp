@@ -194,7 +194,7 @@ FormMain::createWidgets()
 
 	buttonReport->setIconSize( QSize( 48, 48 ) );
 	buttonReport->setIcon( QIcon( ":/report.png") );
-	buttonReport->setToolTip( "Сформировать реестр за дату" );
+	buttonReport->setToolTip( "Сформировать реестр за дату, с Ctrl - редактировать реестр на дату" );
 
 	buttonAbout->setIconSize( QSize( 48, 48 ) );
 	buttonAbout->setIcon( qApp->windowIcon() );
