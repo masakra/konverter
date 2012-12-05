@@ -51,8 +51,6 @@ FormMain::FormMain( QWidget * parent )
 
 	createWidgets();
 
-	createActions();
-
 	createPrinter();
 
 	loadEnvelopes();
@@ -119,19 +117,6 @@ FormMain::refresh( int id )
 			}
 		}
 	}
-}
-
-void
-FormMain::createActions()
-{
-	actionSelectFont = new QAction( QIcon(":/font.png"), "Выбрать шрифт", this );
-}
-
-void
-FormMain::createToolBar()
-{
-	QToolBar * toolBar = new QToolBar( "Действия", this );
-	toolBar->addAction( actionSelectFont );
 }
 
 void
@@ -441,7 +426,6 @@ FormMain::printSide( const Envelope & e, int side )
 		painter.setPen( QPen( Qt::black ) );
 
 		painter.save();			// sender from
-		//painter.translate( 470, 1720 );
 		painter.translate( e.senderX(), e.senderY() );
 		painter.rotate( -90 );
 
