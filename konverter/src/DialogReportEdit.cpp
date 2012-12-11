@@ -32,6 +32,7 @@
 DialogReportEdit::DialogReportEdit( QWidget * parent )
 	: QDialog( parent )
 {
+	setWindowIcon( QIcon(":/report.png") );
 	createWidgets();
 }
 

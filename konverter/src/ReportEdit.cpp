@@ -39,6 +39,7 @@ ReportEdit::ReportEdit( const QDate & d, QWidget * parent )
 	setAttribute( Qt::WA_DeleteOnClose );
 
 	setWindowTitle( QString("Данные за %1").arg( date.toString("dd.MM.yyyy") ) );
+	setWindowIcon( QIcon(":/report.png") );
 
 	horizontalHeader()->hide();
 	verticalHeader()->hide();

@@ -33,6 +33,7 @@ DialogReport::DialogReport( QWidget * parent )
 	: QDialog( parent )
 {
 	setWindowTitle( "Журнал" );
+	setWindowIcon( QIcon(":/report.png") );
 	createWidgets();
 }
 
