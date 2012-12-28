@@ -161,11 +161,13 @@ WidgetContact::setWho()
 
 	edit->setText( who );
 
-	editShow( width() - lineMargin() - MARGIN, lineMargin(), y );
+	newly = who.isEmpty();
+
+	showEdit( width() - lineMargin() - MARGIN, lineMargin(), y );
 }
 
 void
-WidgetContact::editShow( int w, int m, int y )
+WidgetContact::showEdit( int w, int m, int y )
 {
 	update();
 
@@ -183,12 +185,20 @@ WidgetContact::editReturned()
 		case SettingWho:
 			who = edit->text().trimmed();
 			emit whoChanged( who );
-			break;
+			if ( newly ) {
+				setWhere();
+				return;
+			} else
+				break;
 
 		case SettingWhere:
 			where = edit->text().trimmed();
 			emit whereChanged( where );
-			break;
+			if ( newly ) {
+				setIndex();
+				return;
+			} else
+				break;
 
 		case SettingIndex:
 			index = edit->text().trimmed();
@@ -271,4 +281,5 @@ WidgetContact::split( const QString & str, int w ) const
 	else
 		return list << acc;
 }
+
 

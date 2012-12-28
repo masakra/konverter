@@ -166,7 +166,9 @@ WidgetRecipient::setWhere()
 
 	edit->setText( where );
 
-	editShow( width() - lineMargin() - MARGIN, lineMargin(), y );
+	newly = where.isEmpty();
+
+	showEdit( width() - lineMargin() - MARGIN, lineMargin(), y );
 }
 
 void
@@ -190,7 +192,9 @@ WidgetRecipient::setIndex()
 
 	edit->setText( index );
 
-	editShow( editWidth, MARGIN, y );
+	newly = index.isEmpty();
+
+	showEdit( editWidth, MARGIN, y );
 }
 
 void

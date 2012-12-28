@@ -239,7 +239,9 @@ WidgetSender::setWhere()
 
 	edit->setText( where );
 
-	editShow( width() - lineMargin() - MARGIN, lineMargin(), y );
+	newly = where.isEmpty();
+
+	showEdit( width() - lineMargin() - MARGIN, lineMargin(), y );
 }
 
 void
@@ -261,6 +263,8 @@ WidgetSender::setIndex()
 
 	edit->setText( index );
 
-	editShow( editWidth, editMargin, y );
+	newly = index.isEmpty();
+
+	showEdit( editWidth, editMargin, y );
 }
 

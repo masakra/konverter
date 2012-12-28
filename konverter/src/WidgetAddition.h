@@ -4,6 +4,7 @@
 
 #include <QWidget>
 
+class QStringListModel;
 class LineEdit;
 
 class WidgetAddition : public QWidget
@@ -17,6 +18,8 @@ class WidgetAddition : public QWidget
 
 		QString cachedCity;
 
+		QStringListModel * modelCompleter;
+
 	private Q_SLOTS:
 		void editReturned();
 
@@ -26,6 +29,8 @@ class WidgetAddition : public QWidget
 		WidgetAddition( QWidget * parent = 0 );
 
 		void setCity( const QString & city );
+
+		void updateModelCompleter();
 
 	Q_SIGNALS:
 		void cityChanged( const QString & text );

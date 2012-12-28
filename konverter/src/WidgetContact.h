@@ -79,9 +79,22 @@ class WidgetContact : public QWidget
 
 		LineEdit * edit;
 
-		void editShow( int w, int m, int y );
+		void showEdit( int w, int m, int y );
 
 		QStringList split( const QString & str, int w ) const;
+
+		/** \var bool newly
+		 *
+		 * \brief Признак ввода новых данных
+		 *
+		 * С большой долей вероятности ввод данных в пустое поле
+		 * означает создание нового контакта. Соответвенно реакция
+		 * на Enter иная.
+		 *
+		 * \sa editReturned()
+		 */
+
+		bool newly;
 
 	protected Q_SLOTS:
 		void selectAddressFont();

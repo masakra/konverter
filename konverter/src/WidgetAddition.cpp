@@ -2,7 +2,9 @@
 #include "WidgetAddition.h"
 
 #include <QtGui>
+#include <QtSql>
 #include "LineEdit.h"
+#include "_.h"
 
 WidgetAddition::WidgetAddition( QWidget * parent )
 	: QWidget( parent )
@@ -18,6 +20,10 @@ WidgetAddition::createWidgets()
 
 	connect( editCity, SIGNAL( returnPressed() ), SLOT( editReturned() ) );
 	connect( editCity, SIGNAL( escapePressed() ), SLOT( editEscaped() ) );
+
+	modelCompleter = new QStringListModel( this );
+
+	editCity->setCompleter( new QCompleter( modelCompleter, editCity ) );
 
 	QLabel * labelCity = new QLabel( "&Город", this );
 
@@ -46,11 +52,36 @@ WidgetAddition::editReturned()
 	cachedCity = editCity->text().trimmed();
 
 	emit cityChanged( cachedCity );
+
+	updateModelCompleter();
 }
 
 void
 WidgetAddition::editEscaped()
 {
 	editCity->setText( cachedCity );
+}
+
+void
+WidgetAddition::updateModelCompleter()
+{
+	QSqlQuery q;
+
+	q.prepare( QString("SELECT DISTINCT "
+			"trim( initcap( city ) ) "
+		"FROM "
+			"%1 "
+		"ORDER BY 1")
+			.arg( _tableName( "contact" ) ) );
+
+	if ( q.exec() ) {
+		QStringList list;
+		while ( q.next() )
+			list << q.value( 0 ).toString();
+
+		modelCompleter->setStringList( list );
+
+	} else
+		_yell( q );
 }
 

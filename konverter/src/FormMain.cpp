@@ -984,6 +984,7 @@ FormMain::dbConnect()
 	if ( db.open() ) {
 		setSenderData();
 		createModel();
+		addition->updateModelCompleter();
 
 		if ( _dbPg )
 			setWindowTitle( qApp->applicationName().append(" - %1@%2").arg( user, host ) );
