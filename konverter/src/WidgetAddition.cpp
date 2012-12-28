@@ -68,14 +68,17 @@ WidgetAddition::updateModelCompleter()
 	QSqlQuery q;
 
 	q.prepare( QString("SELECT DISTINCT "
-			"trim( initcap( city ) ) "
+			"trim( %1( city ) ) "
 		"FROM "
-			"%1 "
+			"%2 "
 		"ORDER BY 1")
+			.arg( _dbPg ? "initcap": "" )
 			.arg( _tableName( "contact" ) ) );
 
 	if ( q.exec() ) {
+
 		QStringList list;
+
 		while ( q.next() )
 			list << q.value( 0 ).toString();
 
