@@ -976,6 +976,9 @@ FormMain::dbConnect()
 		db.setDatabaseName( database );
 		db.setUserName( user );
 		db.setPassword( pass );
+		db.setConnectOptions( QString("application_name='%1 v.%2'")
+				.arg( qApp->applicationName() )
+				.arg( qApp->applicationVersion() ) );
 
 	} else {
 		db.setDatabaseName( dataPath() + qApp->applicationName() + ".db" );
