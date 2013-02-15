@@ -216,6 +216,8 @@ FormMain::createWidgets()
 	comboIshod->addItem( "Исходящий", QString("Исх. %1").arg( QChar( 0x2116 ) ) );
 	comboIshod->addItem( "Счёт-фактура", "с/ф" );
 	comboIshod->addItem( "Счёт", "cчёт" );
+	comboIshod->addItem( "Акт", "акт" );
+	comboIshod->addItem( "Акт сверки", "акт сверки" );
 
 	editIshod = new QLineEdit( centralWidget );
 
