@@ -101,12 +101,6 @@ class FormMain : public QMainWindow
 
 		void loadFont( QSettings & settings, WidgetContact * contact, const QString & prefix );
 
-		void createActions();
-
-		QAction * actionSelectFont;
-
-		void createToolBar();
-
 		void createPrinter();
 
 		QPrinter * printer;
