@@ -30,6 +30,8 @@
 #ifndef WIDGETSENDER_H
 #define WIDGETSENDER_H
 
+#include <QLocale>
+
 #include "WidgetContact.h"
 
 class WidgetSender : public WidgetContact
@@ -37,15 +39,13 @@ class WidgetSender : public WidgetContact
 	Q_OBJECT
 
 	private:
-		//QString whereLine( int row ) const;
-
 		static const QString fromWho,
 							 fromWhere;
 
+		QLocale::Language m_language;
 
 	private Q_SLOTS:
 		virtual const QString & whoStr() const;
-
 		virtual const QString & whereStr() const;
 
 	protected:
@@ -53,14 +53,20 @@ class WidgetSender : public WidgetContact
 		virtual void paintEvent( QPaintEvent * event );
 		virtual void mouseDoubleClickEvent( QMouseEvent * event );
 		virtual void resizeEvent( QResizeEvent * event );
+		virtual void contextMenu( QMenu & menu ) const;
 
 	public:
 		WidgetSender( QWidget * parent );
 
+		QLocale::Language language() const;
+
 	public Q_SLOTS:
 		virtual void setWhere();
 		virtual void setIndex();
+		void toggleLanguage( QLocale::Language lang = QLocale::AnyLanguage );
 
+	Q_SIGNALS:
+		void languageChanged( QLocale::Language lang );
 };
 
 #endif

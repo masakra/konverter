@@ -28,6 +28,7 @@
 #ifndef FORMMAIN_H
 #define FORMMAIN_H
 
+#include <QLocale>
 #include <QMainWindow>
 
 #include <QHash>
@@ -91,8 +92,6 @@ class FormMain : public QMainWindow
 		QToolButton * buttonAdd,
 					* buttonDel;
 
-		void setSenderData();
-
 		void createModel();
 
 		void refresh( int id = -1 );
@@ -135,6 +134,8 @@ class FormMain : public QMainWindow
 
 	private Q_SLOTS:
 		void contactChanged( const QModelIndex & current, const QModelIndex & previous );
+
+		void setSenderData( QLocale::Language lang );
 
 		void setCount( int rows );
 

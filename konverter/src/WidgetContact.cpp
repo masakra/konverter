@@ -143,10 +143,18 @@ WidgetContact::mousePressEvent( QMouseEvent * event )
 		menu.addAction( "Установить " + whereStr(), this, SLOT( setWhere() ) );
 		menu.addAction( "Установить Индекс", this, SLOT( setIndex() ) );
 		menu.addSeparator();
-		menu.addAction( "Выбрать &шрифт", this, SLOT( selectAddressFont() ) );
+		menu.addAction( QIcon::fromTheme("preferences-desktop-font", QIcon(":/font.png") ),
+				"Выбрать &шрифт", this, SLOT( selectAddressFont() ) );
+
+		contextMenu( menu );
 
 		menu.exec( event->globalPos() );
 	}
+}
+
+void
+WidgetContact::contextMenu( QMenu & /*menu*/ ) const
+{
 }
 
 void

@@ -37,6 +37,7 @@
 
 #include <QWidget>
 
+class QMenu;
 class LineEdit;
 
 class WidgetContact : public QWidget
@@ -95,6 +96,14 @@ class WidgetContact : public QWidget
 		 */
 
 		bool newly;
+
+		/*! \fn virtual void contextMenu( QMenu & menu ) const
+		 *
+		 * \brief Для добавления в контекстное меню \a menu
+		 *
+		 * Потомки могут добавлять пункты в контекстное меню.
+		 */
+		virtual void contextMenu( QMenu & menu ) const;
 
 	protected Q_SLOTS:
 		void selectAddressFont();

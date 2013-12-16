@@ -134,6 +134,8 @@ FormMain::createWidgets()
 			SLOT( modifySenderIndex( const QString & ) ) );
 	connect( sender, SIGNAL( addressFontChanged( const QFont & ) ),
 			SLOT( saveSenderAddressFont( const QFont & ) ) );
+	connect( sender, SIGNAL( languageChanged( QLocale::Language ) ),
+			SLOT( setSenderData( QLocale::Language ) ) );
 
 	labelCount = new QLabel( centralWidget );
 
@@ -268,7 +270,7 @@ FormMain::createWidgets()
 }
 
 void
-FormMain::setSenderData()
+FormMain::setSenderData( QLocale::Language lang )
 {
 	QSqlQuery q;
 
@@ -280,7 +282,7 @@ FormMain::setSenderData()
 			"%1 "
 		"WHERE "
 			"id = 0")	// not id as variant )))
-			.arg( _tableName( "contact" ) ) );
+			.arg( _tableName( lang == QLocale::Russian ? "contact" : "i18n" ) ) );
 
 	if ( q.exec() ) {
 		if ( q.first() )
@@ -517,7 +519,7 @@ FormMain::modifyContact( const QString & field, const QString & text, int id ) c
 			"%2 = :text "
 		"WHERE "
 			"id = :id")
-			.arg( _tableName( "contact" ) )
+			.arg( _tableName( id != 0 ? "contact" : sender->language() == QLocale::Russian ? "contact" : "i18n" ) )
 			.arg( field ) );
 
 	q.bindValue(":text", text );
@@ -945,11 +947,13 @@ FormMain::dbConnect()
 	if ( _dbPg ) {
 
 		if ( database.isEmpty() ) {
-			dc = new DialogConnect( qApp->applicationName() + " " + qApp->applicationVersion(), "QPSQL" );
+			dc = new DialogConnect( qApp->applicationName() + " v" + qApp->applicationVersion(), &db, this );
 			dc->setBanner( QPixmap(":/nordavia_konverter.png") );
 
-			if ( ! dc->exec() )
+			if ( ! dc->exec() ) {
+				delete dc;
 				return false;
+			}
 
 			host = dc->hostName();
 			port = dc->port();
@@ -972,7 +976,7 @@ FormMain::dbConnect()
 	}
 
 	if ( db.open() ) {
-		setSenderData();
+		setSenderData( sender->language() );
 		createModel();
 		addition->updateModelCompleter();
 
@@ -981,10 +985,10 @@ FormMain::dbConnect()
 		else
 			setWindowTitle( qApp->applicationName() );
 
-		//if ( dc )
-			//dc->saveSettings();
-		if ( dc )
+		if ( dc ) {
+			dc->saveSettings();
 			delete dc;
+		}
 
 		return true;
 

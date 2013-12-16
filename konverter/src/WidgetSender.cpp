@@ -36,7 +36,7 @@ const QString WidgetSender::fromWho = QTextCodec::codecForName("UTF-8")->toUnico
 const QString WidgetSender::fromWhere = QTextCodec::codecForName("UTF-8")->toUnicode("Откуда");
 
 WidgetSender::WidgetSender( QWidget * parent )
-	: WidgetContact( parent )
+	: WidgetContact( parent ), m_language( QLocale::Russian )
 {
 	State = Normal;
 
@@ -117,49 +117,6 @@ WidgetSender::paintEvent( QPaintEvent * /*event*/ )
 		painter.drawText( boxMargin + 4, y3 + 1, boxWidth, boxHeight,
 				Qt::AlignHCenter + Qt::AlignVCenter, index );
 }
-
-/*
-QString
-WidgetSender::whereLine( int row ) const
-{
-	const int w = width() - lineMargin() - MARGIN;
-
-	const QFontMetrics fm( addressFont );
-
-	if ( fm.width( where ) <= w ) {
-		if ( row == 1 )
-			return where;
-		else
-			return QString();
-	}
-
-	QStringList list = where.split(" ");
-
-	if ( list.size() == 0 )
-		return QString();
-
-	int count = 1;
-	QString acc;
-
-	for ( int i = 0; i < list.size(); ++i ) {
-
-		if ( acc.size() != 0 )
-			acc += " ";
-
-		if ( fm.width( acc + list[ i ] ) >= w ) {
-			if ( count == row )
-				return acc;
-			else {
-				++count;
-				acc = list[ i ];
-			}
-		} else
-			acc += list[ i ];
-	}
-
-	return acc;
-}
-*/
 
 void
 WidgetSender::resizeEvent( QResizeEvent * event )
@@ -266,5 +223,41 @@ WidgetSender::setIndex()
 	newly = index.isEmpty();
 
 	showEdit( editWidth, editMargin, y );
+}
+
+void
+WidgetSender::contextMenu( QMenu & menu ) const
+{
+	menu.addSeparator();
+	if ( m_language == QLocale::Russian )
+		menu.addAction( QIcon::fromTheme( "flag-en", QIcon(":/flag-en.png") ),
+				"&Английский язык", this, SLOT( toggleLanguage() ), Qt::CTRL + Qt::Key_L );
+	else
+		menu.addAction( QIcon::fromTheme( "flag-ru", QIcon(":/flag-ru.png") ),
+				"&Русский язык", this, SLOT( toggleLanguage() ), Qt::CTRL + Qt::Key_L );
+}
+
+void
+WidgetSender::toggleLanguage( QLocale::Language lang )
+{
+	if ( lang == QLocale::AnyLanguage ) {
+		if ( m_language == QLocale::English )
+			m_language = QLocale::Russian;
+		else
+			m_language = QLocale::English;
+
+		emit languageChanged( m_language );
+
+	} else if ( m_language != lang ) {
+		m_language = lang;
+
+		emit languageChanged( m_language );
+	}
+}
+
+QLocale::Language
+WidgetSender::language() const
+{
+	return m_language;
 }
 
