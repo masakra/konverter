@@ -29,8 +29,8 @@
 
 #include <QtGui>
 #include <QtSql>
+#include <NaraGui>
 #include "_.h"
-#include "DialogConnect.h"
 #include "DialogReport.h"
 #include "DialogReportEdit.h"
 #include "Report.h"
@@ -945,7 +945,8 @@ FormMain::dbConnect()
 	if ( _dbPg ) {
 
 		if ( database.isEmpty() ) {
-			dc = new DialogConnect( this );
+			dc = new DialogConnect( qApp->applicationName() + " " + qApp->applicationVersion(), "QPSQL" );
+			dc->setBanner( QPixmap(":/nordavia_konverter.png") );
 
 			if ( ! dc->exec() )
 				return false;
@@ -980,13 +981,18 @@ FormMain::dbConnect()
 		else
 			setWindowTitle( qApp->applicationName() );
 
+		//if ( dc )
+			//dc->saveSettings();
 		if ( dc )
-			dc->saveSettings();
+			delete dc;
 
 		return true;
 
 	} else
 		_yell( db.lastError().text() );
+
+	if ( dc )
+		delete dc;
 
 	return false;
 }
