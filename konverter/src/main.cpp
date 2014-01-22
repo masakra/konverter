@@ -51,17 +51,25 @@
 
 #include "FormMain.h"
 
+#ifndef VERSION
+#warning !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#warning !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#warning "VERSION not defined. Look in remake.sh!"
+#warning !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#warning !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#define VERSION "Not defined!"
+#endif
+
 int
 main( int argc, char ** argv )
 {
 	QApplication app( argc, argv );
 
 	app.setApplicationName( "konverter" );
-	app.setApplicationVersion( "1.0.0" );
+	app.setApplicationVersion( VERSION );
 	app.setOrganizationName( "Nordavia-RA" );
 	app.setWindowIcon( QIcon(":/main.png") );
 
-	//QTextCodec::setCodecForCStrings( QTextCodec::codecForName( "KOI8-R" ) );
 	QTextCodec::setCodecForCStrings( QTextCodec::codecForName( "UTF-8" ) );
 
 	FormMain fm;

@@ -1,10 +1,24 @@
-.#!/bin/sh
+#!/bin/sh
 
 TARGET="konverter"
+VERSION="1.0.0"
 MODULES="sql"
-GMAKE="/usr/local/bin/gmake"
-QMAKE="/usr/local/bin/qmake-qt4"
-COMPILER=clang
+
+if [ ${OS} ]	# На Win* выдает что-то типа Windows_NT, на других платформах не определена
+then
+	GMAKE="/c/MinGW/bin/mingw32-make";
+	QMAKE="/c/Qt/4.8.4/bin/qmake";
+	LIBS="-L../../naragui/release -lnaragui"
+else
+	GMAKE="/usr/local/bin/gmake";
+	QMAKE="/usr/local/bin/qmake-qt4";
+	CXX_FLAGS="-m64 -mmmx -msse -msse2 -msse3"
+	SPEC="-spec freebsd-clang"
+	#SPEC="-spec freebsd-g++"
+	LIBS="-L../../naragui -lnaragui"
+fi
+
+DEFINES="VERSION=\\\\\\\"${VERSION}\\\\\\\""	# aaaaaaaaaaaaaaaaa fuck !!
 CXX_FLAGS="-m64 -mmmx -msse -msse2 -msse3"
 INCLUDEPATH="../../naragui"
 LIBS="-L../../naragui -lnaragui"
@@ -26,12 +40,12 @@ then
 	echo "INCLUDEPATH += ${INCLUDEPATH}" >> ${TARGET}.pro;
 	echo "include += ${INCLUDEPATH}";
 	# defines
-	#echo "DEFINES += ${DEFINES}" >> ${TARGET}.pro;
-	#echo "defines += ${DEFINES}";
+	echo "DEFINES += ${DEFINES}" >> ${TARGET}.pro;
+	echo "defines += ${DEFINES}";
 	# libraries
 	echo "LIBS += ${LIBS}" >> ${TARGET}.pro;
 	echo "libraries += ${LIBS}";
-	${QMAKE} -spec freebsd-${COMPILER};
+	${QMAKE} ${SPEC}
 else
 	echo "ERROR: file ${TARGET}.pro not found."
 fi
