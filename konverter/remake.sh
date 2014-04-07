@@ -8,20 +8,19 @@ if [ ${OS} ]	# На Win* выдает что-то типа Windows_NT, на др
 then
 	GMAKE="/c/MinGW/bin/mingw32-make";
 	QMAKE="/c/Qt/4.8.4/bin/qmake";
-	LIBS="-L../../naragui/release -lnaragui"
+	LIBS="-L../../naragui/release -L../../narapg/release -lnaragui -lnarapg"
 else
 	GMAKE="/usr/local/bin/gmake";
 	QMAKE="/usr/local/bin/qmake-qt4";
 	CXX_FLAGS="-m64 -mmmx -msse -msse2 -msse3"
 	SPEC="-spec freebsd-clang"
 	#SPEC="-spec freebsd-g++"
-	LIBS="-L../../naragui -lnaragui"
+	LIBS="-L../../naragui -L../../narapg -lnaragui -lnarapg"
 fi
 
 DEFINES="VERSION=\\\\\\\"${VERSION}\\\\\\\""	# aaaaaaaaaaaaaaaaa fuck !!
 CXX_FLAGS="-m64 -mmmx -msse -msse2 -msse3"
 INCLUDEPATH="../../naragui"
-LIBS="-L../../naragui -lnaragui"
 
 ${GMAKE} distclean
 
