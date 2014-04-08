@@ -19,7 +19,7 @@ else
 fi
 
 DEFINES="VERSION=\\\\\\\"${VERSION}\\\\\\\""	# aaaaaaaaaaaaaaaaa fuck !!
-CXX_FLAGS="-m64 -mmmx -msse -msse2 -msse3"
+CXX_FLAGS="-mmmx -msse -msse2 -msse3"
 INCLUDEPATH="../../naragui"
 
 ${GMAKE} distclean
