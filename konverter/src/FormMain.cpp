@@ -701,7 +701,7 @@ FormMain::about()
 {
 	QMessageBox::about( this, "О программе",
 			QString("<H3>%1 v.%2</H3>").arg( qApp->applicationName(), qApp->applicationVersion() ) +
-				"2012 г. ЗАО " + QChar(0xAB) + QString("Нордавиа-РА") + QChar(0xBB) + "<BR><BR>" +
+				"2012-2014 ЗАО " + QChar(0xAB) + QString("Нордавиа-РА") + QChar(0xBB) + "<BR><BR>" +
 				"e-mail: <A HREF='mailto:masakra@mail.ru'>masakra@mail.ru</A><BR>"
 				"ICQ: 124231040<BR>"
 				"jabber: masakra@jabber.ru" );

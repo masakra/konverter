@@ -35,13 +35,9 @@
 #include "DialogReport.h"
 
 Report::Report( QWidget * parent )
-	: QTextEdit( parent )
+	: TextEdit( parent )
 {
-	setAttribute( Qt::WA_DeleteOnClose );
-
 	setWindowIcon( QIcon(":/report.png") );
-
-	printer.setPageMargins( 5, 5, 5, 5, QPrinter::Millimeter );
 }
 
 void
@@ -49,17 +45,16 @@ Report::show( const DialogReport & dialog )
 {
 	setWindowTitle( dialog.date().toString( "dd MMM yyyy" ) );
 
-	defaultFileName = QString("konverter_%1_report").arg( dialog.date().toString("dd_MM_yyyy" ) );
+	setDefaultFileName( QString("konverter_%1_report").arg( dialog.date().toString("dd_MM_yyyy" ) ) );
 
 	makeReport( dialog );
 
-	QTextEdit::show();
+	TextEdit::show();
 }
 
 void
 Report::makeReport( const DialogReport & dialog )
 {
-
 	QString text = QString("<TABLE BORDER=0 BGCOLOR=white CELLSPACING=0 WIDTH=700>"
 		"<TR>"
 		  "<TD ALIGN=left>"
@@ -187,61 +182,4 @@ Report::makeReport( const DialogReport & dialog )
 
 	document()->setHtml( text );
 }
-
-void
-Report::contextMenuEvent( QContextMenuEvent * event )
-{
-	QMenu * menu = createStandardContextMenu();
-
-	QAction * actionPrint = menu->addAction( "Печатать..." );
-	actionPrint->setShortcut( Qt::CTRL + Qt::Key_P );
-	connect( actionPrint, SIGNAL( triggered() ), SLOT( printToPrinter() ) );
-
-	QAction * actionToPdf = menu->addAction( "Сохранить в PDF..." );
-	actionToPdf->setShortcut( Qt::CTRL + Qt::Key_E );
-	connect( actionToPdf, SIGNAL( triggered() ), SLOT( saveToPdf() ) );
-
-	menu->exec( event->globalPos() );
-
-	delete actionToPdf;
-	delete actionPrint;
-	delete menu;
-}
-
-void
-Report::printToPrinter()
-{
-	QPrintDialog pd( &printer );
-
-	if ( pd.exec() == QDialog::Accepted ) {
-
-		printer.setOutputFormat( QPrinter::NativeFormat );
-		print( &printer );
-	}
-}
-
-void
-Report::saveToPdf()
-{
-	QSettings settings;
-
-	QString fileName = QFileDialog::getSaveFileName( 0, "Сохранит в PDF",
-			settings.value( DIR_PATH, ".").toString() +
-			QDir::separator() + defaultFileName,
-			tr("PDF files (*.pdf)"));
-
-	if ( ! fileName.isEmpty() ) {
-		// save last saving dir
-		QFileInfo fileInfo( fileName );
-
-		settings.setValue( DIR_PATH, fileInfo.dir().path() );
-
-		printer.setOutputFormat( QPrinter::PdfFormat );
-		printer.setOutputFileName( fileName );
-		print( &printer );
-	}
-}
-
-
-
 

@@ -1,26 +1,33 @@
 #!/bin/sh
 
 TARGET="konverter"
-VERSION="1.0.0"
+VERSION="1.1.0"
 MODULES="sql"
 
 if [ ${OS} ]	# На Win* выдает что-то типа Windows_NT, на других платформах не определена
 then
 	GMAKE="/c/MinGW/bin/mingw32-make";
 	QMAKE="/c/Qt/4.8.4/bin/qmake";
-	LIBS="-L../../naragui/release -L../../narapg/release -lnaragui -lnarapg"
+	LIBS="-L../../naragui/release \
+		-L../../narapg/release \
+		-lnaragui \
+		-lnarapg"
 else
 	GMAKE="/usr/local/bin/gmake";
 	QMAKE="/usr/local/bin/qmake-qt4";
 	CXX_FLAGS="-m64 -mmmx -msse -msse2 -msse3"
 	SPEC="-spec freebsd-clang"
 	#SPEC="-spec freebsd-g++"
-	LIBS="-L../../naragui -L../../narapg -lnaragui -lnarapg"
+	LIBS="-L../../naragui \
+		-L../../narapg \
+		-lnaragui \
+		-lnarapg"
 fi
 
 DEFINES="VERSION=\\\\\\\"${VERSION}\\\\\\\""	# aaaaaaaaaaaaaaaaa fuck !!
 CXX_FLAGS="-mmmx -msse -msse2 -msse3"
-INCLUDEPATH="../../naragui"
+INCLUDEPATH="../../naragui \
+	../../narapg"
 
 ${GMAKE} distclean
 

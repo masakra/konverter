@@ -31,8 +31,6 @@
 #include <QtSql>
 #include "_.h"
 
-#include <QDebug>
-
 ReportEdit::ReportEdit( const QDate & d, QWidget * parent )
 	: QTableView( parent ), date( d )
 {
@@ -106,8 +104,6 @@ ReportEdit::doubleClicked( const QModelIndex & index )
 
 	const QDateTime key = model->index( row, 0 ).data().toDateTime();
 
-	//qDebug() << key.toString("yyyy-MM-dd hh:mm:ss:zzz");
-
 	switch ( index.column() ) {
 		case 1:
 			if ( QMessageBox::question( this, "Подтверджение", "Удалить запись?",
@@ -132,27 +128,6 @@ ReportEdit::doubleClicked( const QModelIndex & index )
 		default:
 			;
 	}
-
-	/*
-	if ( index.column() == 1 &&
-			QMessageBox::question( this, "Подтверджение", "Удалить запись?",
-				QMessageBox::Yes | QMessageBox::No, QMessageBox::No ) == QMessageBox::Yes ) {
-
-		return;
-	}
-
-	if ( index.column() == 2 ) {
-		modifyNumText();
-		return;
-	}
-
-	if ( index.column() == 3 ) 
-
-	if ( index.column() == 4 ) {
-		toggleZakaz( key );
-		return;
-	}
-	*/
 }
 
 void
