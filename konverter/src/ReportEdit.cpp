@@ -32,7 +32,7 @@
 #include "_.h"
 
 ReportEdit::ReportEdit( const QDate & d, QWidget * parent )
-	: QTableView( parent ), date( d )
+	: Grid( parent ), date( d )
 {
 	setAttribute( Qt::WA_DeleteOnClose );
 
@@ -41,10 +41,6 @@ ReportEdit::ReportEdit( const QDate & d, QWidget * parent )
 
 	horizontalHeader()->hide();
 	verticalHeader()->hide();
-
-	setSelectionBehavior( QAbstractItemView::SelectRows );
-	setSelectionMode( QAbstractItemView::SingleSelection );
-	setAlternatingRowColors( true );
 
 	setModel( model = new QSqlQueryModel( this ) );
 

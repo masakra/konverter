@@ -28,13 +28,13 @@
 #ifndef REPORTEDIT_H
 #define REPORTEDIT_H
 
-#include <QTableView>
+#include <NaraGui>
 
 #include <QDate>
 
 class QSqlQueryModel;
 
-class ReportEdit : public QTableView
+class ReportEdit : public Grid
 {
 	Q_OBJECT
 

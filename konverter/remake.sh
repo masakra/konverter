@@ -1,7 +1,7 @@
 #!/bin/sh
 
 TARGET="konverter"
-VERSION="1.1.0"
+VERSION="1.1.1"
 MODULES="sql"
 
 if [ ${OS} ]	# На Win* выдает что-то типа Windows_NT, на других платформах не определена
