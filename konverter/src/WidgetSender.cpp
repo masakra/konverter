@@ -32,33 +32,29 @@
 #include <QtGui>
 #include "LineEdit.h"
 
-const QString WidgetSender::fromWho = QTextCodec::codecForName("UTF-8")->toUnicode("От кого");
-const QString WidgetSender::fromWhere = QTextCodec::codecForName("UTF-8")->toUnicode("Откуда");
+const QString WidgetSender::m_fromWho = QTextCodec::codecForName("UTF-8")->toUnicode("От кого");
+const QString WidgetSender::m_fromWhere = QTextCodec::codecForName("UTF-8")->toUnicode("Откуда");
 
 WidgetSender::WidgetSender( QWidget * parent )
 	: WidgetContact( parent ), m_language( QLocale::Russian )
 {
-	State = Normal;
+	m_state = Normal;
 
-	//setVerticalStretch( 1 );
 	setMinimumSize( QSize( 350, 150 ) );
 }
 
 QSize
 WidgetSender::sizeHint() const
 {
-	if ( ! cachedSizeHint.isValid() ) {
+	if ( ! m_cachedSizeHint.isValid() ) {
 
-		//const QFontMetrics fm( font() );
 		const int h = rowHeight() * 4 + SPACING * 3 + MARGIN * 2;
 
-		cachedSizeHint.setWidth( 350 );
-		cachedSizeHint.setHeight( h );
-
-		//setMinimumSize( 350, h );
+		m_cachedSizeHint.setWidth( 350 );
+		m_cachedSizeHint.setHeight( h );
 	}
 
-	return cachedSizeHint;
+	return m_cachedSizeHint;
 }
 
 void
@@ -81,10 +77,10 @@ WidgetSender::paintEvent( QPaintEvent * /*event*/ )
 		y3 = y2 + SPACING + rowHeight();
 		//y4 = y3 + SPACING + fm.height();
 
-	painter.drawText( MARGIN, y1, fromWho );
+	painter.drawText( MARGIN, y1, m_fromWho );
 	painter.drawLine( lineMargin(), y1 + 1, width() - MARGIN, y1 + 1 );
 
-	painter.drawText( MARGIN, y2, fromWhere );
+	painter.drawText( MARGIN, y2, m_fromWhere );
 	painter.drawLine( lineMargin(), y2 + 1, width() - MARGIN, y2 + 1 );
 
 	painter.drawLine( MARGIN, y3 + 1, width() - MARGIN, y3 + 1 );
@@ -97,13 +93,13 @@ WidgetSender::paintEvent( QPaintEvent * /*event*/ )
 
 	// data
 
-	painter.setFont( addressFont );
+	painter.setFont( m_addressFont );
 	painter.setPen( QPen( palette().buttonText().color() ) );
 
-	if ( State != SettingWho )
-		painter.drawText( lineMargin() + 4, y1, who );
+	if ( m_state != SettingWho )
+		painter.drawText( lineMargin() + 4, y1, m_who );
 
-	if ( State != SettingWhere ) {
+	if ( m_state != SettingWhere ) {
 		const QStringList list = whereList( width() - lineMargin() - MARGIN );
 
 		if ( list.size() > 0 )
@@ -113,18 +109,18 @@ WidgetSender::paintEvent( QPaintEvent * /*event*/ )
 			painter.drawText( lineMargin() + 4, y3, list[ 1 ] );
 	}
 
-	if ( State != SettingIndex )
+	if ( m_state != SettingIndex )
 		painter.drawText( boxMargin + 4, y3 + 1, boxWidth, boxHeight,
-				Qt::AlignHCenter + Qt::AlignVCenter, index );
+				Qt::AlignHCenter + Qt::AlignVCenter, m_index );
 }
 
 void
 WidgetSender::resizeEvent( QResizeEvent * event )
 {
-	switch ( State ) {
+	switch ( m_state ) {
 		case SettingWho:
 		case SettingWhere:
-			edit->resize( width() - lineMargin() - MARGIN, edit->height() );
+			m_edit->resize( width() - lineMargin() - MARGIN, m_edit->height() );
 			break;
 
 		case SettingIndex: {
@@ -132,7 +128,7 @@ WidgetSender::resizeEvent( QResizeEvent * event )
 			const int editHeight = SPACING + fm.height(),
 					  editWidth = qRound( editHeight / 13. * 60. ),
 					  editMargin = width() - MARGIN - editWidth;
-			edit->move( editMargin, edit->y() );
+			m_edit->move( editMargin, m_edit->y() );
 			break;
 		}
 
@@ -150,7 +146,7 @@ WidgetSender::mouseDoubleClickEvent( QMouseEvent * event )
 			  y = event->y();
 
 	if ( x > MARGIN && x <= width() - MARGIN &&  y > MARGIN  ) {
-		const QFontMetrics fm( addressFont );
+		const QFontMetrics fm( m_addressFont );
 
 		const int y1 = MARGIN + fm.height() + 2,
 				  y3 = y1 + SPACING + fm.height() + SPACING + fm.height(),
@@ -174,29 +170,29 @@ WidgetSender::mouseDoubleClickEvent( QMouseEvent * event )
 const QString &
 WidgetSender::whoStr() const
 {
-	return fromWho;
+	return m_fromWho;
 }
 
 const QString &
 WidgetSender::whereStr() const
 {
-	return fromWhere;
+	return m_fromWhere;
 }
 
 void
 WidgetSender::setWhere()
 {
-	State = SettingWhere;
+	m_state = SettingWhere;
 
-	const QFontMetrics fm( addressFont );
+	const QFontMetrics fm( m_addressFont );
 
 	const int y = fm.height() + MARGIN +	// 1st row
 		SPACING + fm.height() -				// 2nd row
-		edit->height() + 4;
+		m_edit->height() + 4;
 
-	edit->setText( where );
+	m_edit->setText( m_where );
 
-	newly = where.isEmpty();
+	m_newly = m_where.isEmpty();
 
 	showEdit( width() - lineMargin() - MARGIN, lineMargin(), y );
 }
@@ -204,23 +200,23 @@ WidgetSender::setWhere()
 void
 WidgetSender::setIndex()
 {
-	State = SettingIndex;
+	m_state = SettingIndex;
 
-	const QFontMetrics fm( addressFont );
+	const QFontMetrics fm( m_addressFont );
 
 	const int y = fm.height() + MARGIN +	// 1st row
 		SPACING + fm.height() +				// 2nd row
 		SPACING + fm.height() +				// 3rd row
 		SPACING + fm.height() -				// 4th row
-		edit->height() + 4,
+		m_edit->height() + 4,
 
 			  editHeight = SPACING + fm.height(),
 			  editWidth = qRound( editHeight / 13. * 60. ),
 			  editMargin = width() - MARGIN - editWidth;
 
-	edit->setText( index );
+	m_edit->setText( m_index );
 
-	newly = index.isEmpty();
+	m_newly = m_index.isEmpty();
 
 	showEdit( editWidth, editMargin, y );
 }

@@ -3,6 +3,7 @@
 
 #include <QtGui>
 #include <QtSql>
+#include <NaraPg>
 #include "LineEdit.h"
 #include "_.h"
 
@@ -15,43 +16,43 @@ WidgetAddition::WidgetAddition( QWidget * parent )
 void
 WidgetAddition::createWidgets()
 {
-	editCity = new LineEdit( this );
-	editCity->setToolTip( "Измени и нажми Enter" );
+	m_editCity = new LineEdit( this );
+	m_editCity->setToolTip( "Измени и нажми Enter" );
 
-	connect( editCity, SIGNAL( returnPressed() ), SLOT( editReturned() ) );
-	connect( editCity, SIGNAL( escapePressed() ), SLOT( editEscaped() ) );
+	connect( m_editCity, SIGNAL( returnPressed() ), SLOT( editReturned() ) );
+	connect( m_editCity, SIGNAL( escapePressed() ), SLOT( editEscaped() ) );
 
-	modelCompleter = new QStringListModel( this );
+	m_modelCompleter = new QStringListModel( this );
 
-	editCity->setCompleter( new QCompleter( modelCompleter, editCity ) );
+	m_editCity->setCompleter( new QCompleter( m_modelCompleter, m_editCity ) );
 
 	QLabel * labelCity = new QLabel( "&Город", this );
 
-	labelCity->setBuddy( editCity );
+	labelCity->setBuddy( m_editCity );
 
 	QGridLayout * layout = new QGridLayout( this );
 
 	layout->addWidget( labelCity, 0, 0, Qt::AlignRight );
-	layout->addWidget( editCity, 0, 1 );
+	layout->addWidget( m_editCity, 0, 1 );
 }
 
 void
 WidgetAddition::setCity( const QString & city )
 {
-	cachedCity = city;
+	m_cachedCity = city;
 
-	editCity->setText( city );
+	m_editCity->setText( city );
 }
 
 void
 WidgetAddition::editReturned()
 {
-	if ( editCity->text() == cachedCity )
+	if ( m_editCity->text() == m_cachedCity )
 		return;
 
-	cachedCity = editCity->text().trimmed();
+	m_cachedCity = m_editCity->text().trimmed();
 
-	emit cityChanged( cachedCity );
+	emit cityChanged( m_cachedCity );
 
 	updateModelCompleter();
 }
@@ -59,13 +60,13 @@ WidgetAddition::editReturned()
 void
 WidgetAddition::editEscaped()
 {
-	editCity->setText( cachedCity );
+	m_editCity->setText( m_cachedCity );
 }
 
 void
 WidgetAddition::updateModelCompleter()
 {
-	QSqlQuery q;
+	PgQuery q;
 
 	q.prepare( QString("SELECT DISTINCT "
 			"trim( %1( city ) ) "
@@ -82,7 +83,7 @@ WidgetAddition::updateModelCompleter()
 		while ( q.next() )
 			list << q.value( 0 ).toString();
 
-		modelCompleter->setStringList( list );
+		m_modelCompleter->setStringList( list );
 
 	} else
 		_yell( q );

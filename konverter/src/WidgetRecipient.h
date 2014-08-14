@@ -35,8 +35,8 @@
 class WidgetRecipient : public WidgetContact
 {
 	private:
-		static const QString toWho,
-							 toWhere;
+		static const QString m_toWho,
+							 m_toWhere;
 
 	protected:
 		virtual QSize sizeHint() const;

@@ -1,17 +1,19 @@
 #!/bin/sh
 
 TARGET="konverter"
-VERSION="1.1.1"
+VERSION="1.2.0"
 MODULES="sql"
 
 if [ ${OS} ]	# На Win* выдает что-то типа Windows_NT, на других платформах не определена
 then
 	GMAKE="/c/MinGW/bin/mingw32-make";
 	QMAKE="/c/Qt/4.8.4/bin/qmake";
+	LFLAGS="-enable-auto-import -Wl"
 	LIBS="-L../../naragui/release \
 		-L../../narapg/release \
 		-lnaragui \
 		-lnarapg"
+	RC="icons.rc"
 else
 	GMAKE="/usr/local/bin/gmake";
 	QMAKE="/usr/local/bin/qmake-qt4";
@@ -51,6 +53,13 @@ then
 	# libraries
 	echo "LIBS += ${LIBS}" >> ${TARGET}.pro;
 	echo "libraries += ${LIBS}";
+	# LFLAGS
+	echo "QMAKE_LFLAGS= ${LFLAGS}" >> ${TARGET}.pro;
+	echo "QMAKE_LFLAGS= ${LFLAGS}";
+	# доп. ресурсы
+	echo "RC_FILE = ${RC}" >> ${TARGET}.pro;
+	echo "RC_FILE = ${RC}";
+
 	${QMAKE} ${SPEC}
 else
 	echo "ERROR: file ${TARGET}.pro not found."

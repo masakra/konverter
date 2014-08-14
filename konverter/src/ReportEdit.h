@@ -39,11 +39,11 @@ class ReportEdit : public Grid
 	Q_OBJECT
 
 	private:
-		QDate date;
+		QDate m_date;
 
 		void refresh( const QDateTime & key = QDateTime() );
 
-		QSqlQueryModel * model;
+		QSqlQueryModel * m_model;
 
 		void deleteRecord( const QDateTime & key, int row );
 

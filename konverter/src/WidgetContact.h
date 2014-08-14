@@ -51,18 +51,18 @@ class WidgetContact : public QWidget
 	protected:
 		virtual void mousePressEvent( QMouseEvent * event );
 
-		mutable QSize cachedSizeHint;
+		mutable QSize m_cachedSizeHint;
 
-		QString who,
-				where,
-				index;
+		QString m_who,
+				m_where,
+				m_index;
 
 		enum Status {
 			Normal,
 			SettingWho,
 			SettingWhere,
 			SettingIndex
-		} State;
+		} m_state;
 
 		virtual const QString & whoStr() const = 0;
 
@@ -70,15 +70,15 @@ class WidgetContact : public QWidget
 
 		virtual int lineMargin() const;
 
-		mutable int cachedLineMargin;
+		mutable int m_cachedLineMargin;
 
-		QFont addressFont;
+		QFont m_addressFont;
 
 		int rowHeight() const;
 
-		mutable int cachedRowHeight;
+		mutable int m_cachedRowHeight;
 
-		LineEdit * edit;
+		LineEdit * m_edit;
 
 		void showEdit( int w, int m, int y );
 
@@ -95,7 +95,7 @@ class WidgetContact : public QWidget
 		 * \sa editReturned()
 		 */
 
-		bool newly;
+		bool m_newly;
 
 		/*! \fn virtual void contextMenu( QMenu & menu ) const
 		 *

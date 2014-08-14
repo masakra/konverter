@@ -41,7 +41,6 @@
 
 class QAction;
 class QCheckBox;
-class QComboBox;
 class QLabel;
 class QLineEdit;
 class QModelIndex;
@@ -49,6 +48,7 @@ class QPrinter;
 class QSettings;
 class QTableView;
 class QToolButton;
+class ComboBox;
 class SqlQueryModel;
 class WidgetAddition;
 class WidgetContact;
@@ -69,25 +69,25 @@ class FormMain : public QMainWindow
 
 		void createWidgets();
 
-		WidgetSender * sender;
+		WidgetSender * m_sender;
 
-		WidgetRecipient * recipient;
+		WidgetRecipient * m_recipient;
 
-		WidgetAddition * addition;
+		WidgetAddition * m_addition;
 
-		QLabel * labelCount;
+		QLabel * m_labelCount;
 
-		QTableView * table;
+		QTableView * m_table;
 
-		QLineEdit * editIshod,
-				  * editFilter;
+		QLineEdit * m_editIshod,
+				  * m_editFilter;
 
-		QCheckBox * checkZakaz;
+		QCheckBox * m_checkZakaz;
 
-		SqlQueryModel * model;
+		SqlQueryModel * m_model;
 
-		QComboBox * comboPaperSize,
-				  * comboIshod;
+		ComboBox * m_comboPaperSize,
+				 * m_comboIshod;
 
 		QToolButton * buttonAdd,
 					* buttonDel;

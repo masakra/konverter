@@ -41,7 +41,7 @@ class DialogReportEdit : public QDialog
 	private:
 		void createWidgets();
 
-		QDateTimeEdit * editDate;
+		QDateTimeEdit * m_editDate;
 
 	public:
 		DialogReportEdit( QWidget * parent = 0 );

@@ -32,7 +32,7 @@
 DialogReport::DialogReport( QWidget * parent )
 	: QDialog( parent )
 {
-	setWindowTitle( "Журнал" );
+	setWindowTitle("Журнал");
 	setWindowIcon( QIcon(":/report.png") );
 	createWidgets();
 }
@@ -40,26 +40,26 @@ DialogReport::DialogReport( QWidget * parent )
 void
 DialogReport::createWidgets()
 {
-	editDate = new QDateTimeEdit( QDate::currentDate(), this );
-	editDate->setDisplayFormat( "dd.MM.yyyy" );
+	m_editDate = new QDateTimeEdit( QDate::currentDate(), this );
+	m_editDate->setDisplayFormat("dd.MM.yyyy");
 
-	radioWho = new QRadioButton( "по адресату", this );
-	radioWho->setChecked( true );
+	m_radioWho = new QRadioButton("по адресату", this );
+	m_radioWho->setChecked( true );
 
-	radioIshod = new QRadioButton( "по исходящему", this );
+	m_radioIshod = new QRadioButton("по исходящему", this );
 
-	radioTime = new QRadioButton( "по времени", this );
+	m_radioTime = new QRadioButton("по времени", this );
 
-	radioCity = new QRadioButton( "по городу", this );
+	m_radioCity = new QRadioButton("по городу", this );
 
 	QVBoxLayout * layoutOrder = new QVBoxLayout();
 
-	layoutOrder->addWidget( radioWho );
-	layoutOrder->addWidget( radioIshod );
-	layoutOrder->addWidget( radioTime );
-	layoutOrder->addWidget( radioCity );
+	layoutOrder->addWidget( m_radioWho );
+	layoutOrder->addWidget( m_radioIshod );
+	layoutOrder->addWidget( m_radioTime );
+	layoutOrder->addWidget( m_radioCity );
 
-	QGroupBox * groupOrder = new QGroupBox( "Сортировать", this );
+	QGroupBox * groupOrder = new QGroupBox("Сортировать", this );
 
 	groupOrder->setLayout( layoutOrder );
 
@@ -71,7 +71,7 @@ DialogReport::createWidgets()
 
 	QVBoxLayout * layout = new QVBoxLayout( this );
 
-	layout->addWidget( editDate );
+	layout->addWidget( m_editDate );
 	layout->addWidget( groupOrder );
 	layout->addWidget( buttonBox );
 }
@@ -79,19 +79,19 @@ DialogReport::createWidgets()
 QDate
 DialogReport::date() const
 {
-	return editDate->date();
+	return m_editDate->date();
 }
 
 DialogReport::OrderBy
 DialogReport::orderBy() const
 {
-	if ( radioWho->isChecked() )
+	if ( m_radioWho->isChecked() )
 		return Who;
 
-	else if ( radioIshod->isChecked() )
+	else if ( m_radioIshod->isChecked() )
 		return Number;
 
-	else if ( radioTime->isChecked() )
+	else if ( m_radioTime->isChecked() )
 		return Time;
 
 	else

@@ -32,13 +32,13 @@
 #include <QtGui>
 #include "LineEdit.h"
 
-const QString WidgetRecipient::toWho = QTextCodec::codecForName("UTF-8")->toUnicode("Кому");
-const QString WidgetRecipient::toWhere = QTextCodec::codecForName("UTF-8")->toUnicode("Куда");
+const QString WidgetRecipient::m_toWho = QTextCodec::codecForName("UTF-8")->toUnicode("Кому");
+const QString WidgetRecipient::m_toWhere = QTextCodec::codecForName("UTF-8")->toUnicode("Куда");
 
 WidgetRecipient::WidgetRecipient( QWidget * parent )
 	: WidgetContact( parent )
 {
-	State = Normal;
+	m_state = Normal;
 }
 
 QSize
@@ -66,12 +66,12 @@ WidgetRecipient::paintEvent( QPaintEvent * /*event*/ )
 		y5 = y4 + SPACING + rowHeight(),
 		y6 = y5 + SPACING + rowHeight();
 
-	painter.drawText( MARGIN, y1, toWho );
+	painter.drawText( MARGIN, y1, m_toWho );
 	painter.drawLine( lineMargin(), y1 + 1, width() - MARGIN, y1 + 1 );
 
 	painter.drawLine( MARGIN, y2 + 1, width() - MARGIN, y2 + 1 );
 
-	painter.drawText( MARGIN, y3, toWhere );
+	painter.drawText( MARGIN, y3, m_toWhere );
 	painter.drawLine( lineMargin(), y3 + 1, width() - MARGIN, y3 + 1 );
 
 	painter.drawLine( MARGIN, y4 + 1, width() - MARGIN, y4 + 1 );
@@ -87,10 +87,10 @@ WidgetRecipient::paintEvent( QPaintEvent * /*event*/ )
 
 	// data
 
-	painter.setFont( addressFont );
+	painter.setFont( m_addressFont );
 	painter.setPen( QPen( palette().buttonText().color() ) );
 
-	if ( State != SettingWho ) {
+	if ( m_state != SettingWho ) {
 		const QStringList list = whoList( width() - lineMargin() - MARGIN );
 
 		if ( list.size() > 0 )
@@ -100,7 +100,7 @@ WidgetRecipient::paintEvent( QPaintEvent * /*event*/ )
 			painter.drawText( lineMargin() + 4, y2, list[ 1 ] );
 	}
 
-	if ( State != SettingWhere ) {
+	if ( m_state != SettingWhere ) {
 		const QStringList list = whereList( width() - lineMargin() - MARGIN );
 
 		if ( list.size() > 0 )
@@ -116,9 +116,9 @@ WidgetRecipient::paintEvent( QPaintEvent * /*event*/ )
 			painter.drawText( lineMargin() + 4, y6, list[ 3 ] );
 	}
 
-	if ( State != SettingIndex )
+	if ( m_state != SettingIndex )
 		painter.drawText( MARGIN, y6 + 1, boxWidth, boxHeight,
-				Qt::AlignHCenter + Qt::AlignVCenter, index );
+				Qt::AlignHCenter + Qt::AlignVCenter, m_index );
 }
 
 
@@ -143,30 +143,30 @@ WidgetRecipient::lineMargin() const
 const QString &
 WidgetRecipient::whoStr() const
 {
-	return toWho;
+	return m_toWho;
 }
 
 const QString &
 WidgetRecipient::whereStr() const
 {
-	return toWhere;
+	return m_toWhere;
 }
 
 void
 WidgetRecipient::setWhere()
 {
-	State = SettingWhere;
+	m_state = SettingWhere;
 
-	const QFontMetrics fm( addressFont );
+	const QFontMetrics fm( m_addressFont );
 
 	const int y = fm.height() + MARGIN +	// 1st row
 		SPACING + fm.height() +				// 2nd row
 		SPACING + fm.height() -				// 3rd row
-		edit->height() + 4;
+		m_edit->height() + 4;
 
-	edit->setText( where );
+	m_edit->setText( m_where );
 
-	newly = where.isEmpty();
+	m_newly = m_where.isEmpty();
 
 	showEdit( width() - lineMargin() - MARGIN, lineMargin(), y );
 }
@@ -174,9 +174,9 @@ WidgetRecipient::setWhere()
 void
 WidgetRecipient::setIndex()
 {
-	State = SettingIndex;
+	m_state = SettingIndex;
 
-	const QFontMetrics fm( addressFont );
+	const QFontMetrics fm( m_addressFont );
 
 	const int boxHeight = qRound( SPACING + fm.height() ) / 6.5 * 8,
 			  y = fm.height() + MARGIN +		// 1st row
@@ -186,13 +186,13 @@ WidgetRecipient::setIndex()
 					SPACING + fm.height() +		// 5th row
 					SPACING + fm.height() +		// 6th row
 					boxHeight -
-					edit->height() + 4,
+					m_edit->height() + 4,
 
 			  editWidth = qRound( boxHeight / 8. * 35. );
 
-	edit->setText( index );
+	m_edit->setText( m_index );
 
-	newly = index.isEmpty();
+	m_newly = m_index.isEmpty();
 
 	showEdit( editWidth, MARGIN, y );
 }
@@ -204,7 +204,7 @@ WidgetRecipient::mouseDoubleClickEvent( QMouseEvent * event )
 			  y = event->y();
 
 	if ( x > MARGIN && x <= width() - MARGIN &&  y > MARGIN  ) {
-		const QFontMetrics fm( addressFont );
+		const QFontMetrics fm( m_addressFont );
 
 		const int boxHeight = qRound( SPACING + fm.height() ) / 6.5 * 8,
 				  y2 = MARGIN + fm.height() + SPACING + fm.height() + 2,

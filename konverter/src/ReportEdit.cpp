@@ -29,20 +29,21 @@
 
 #include <QtGui>
 #include <QtSql>
+#include <NaraPg>
 #include "_.h"
 
 ReportEdit::ReportEdit( const QDate & d, QWidget * parent )
-	: Grid( parent ), date( d )
+	: Grid( parent ), m_date( d )
 {
 	setAttribute( Qt::WA_DeleteOnClose );
 
-	setWindowTitle( QString("Данные за %1").arg( date.toString("dd.MM.yyyy") ) );
+	setWindowTitle( QString("Данные за %1").arg( m_date.toString("dd.MM.yyyy") ) );
 	setWindowIcon( QIcon(":/report.png") );
 
 	horizontalHeader()->hide();
 	verticalHeader()->hide();
 
-	setModel( model = new QSqlQueryModel( this ) );
+	setModel( m_model = new QSqlQueryModel( this ) );
 
 	connect( this, SIGNAL( doubleClicked( const QModelIndex & ) ),
 			SLOT( doubleClicked( const QModelIndex & ) ) );
@@ -53,7 +54,7 @@ ReportEdit::ReportEdit( const QDate & d, QWidget * parent )
 void
 ReportEdit::refresh( const QDateTime & key )
 {
-	model->setQuery( QString("SELECT "
+	m_model->setQuery( QString("SELECT "
 			"%1, "			// datetime is a unique attribute
 			"c.who, "
 			"l.num_text, "
@@ -73,8 +74,8 @@ ReportEdit::refresh( const QDateTime & key )
 		.arg( _dbPg ? "\"time\"( l.drec )" : "substr( l.timestamp, 12 )" )
 		.arg( _tableName( "log" ) )
 		.arg( _tableName( "contact" ) )
-		.arg( _dbPg ? QString("date( l.drec ) = '%1'").arg( date.toString("yyyy-MM-dd") ) :
-				QString("substr( l.timestamp, 1, 10 ) = '%1'").arg( date.toString("yyyy-MM-dd") ) ) );
+		.arg( _dbPg ? QString("date( l.drec ) = '%1'").arg( m_date.toString("yyyy-MM-dd") ) :
+				QString("substr( l.timestamp, 1, 10 ) = '%1'").arg( m_date.toString("yyyy-MM-dd") ) ) );
 
 	hideColumn( 0 );	// datetime
 	hideColumn( 5 );	// time
@@ -82,9 +83,9 @@ ReportEdit::refresh( const QDateTime & key )
 	resizeColumnsToContents();
 
 	if ( key.isValid() ) {
-		for ( int i = 0; i < model->rowCount(); ++i ) {
-			if ( model->index( i, 0 ).data().toDateTime() == key ) {
-				const QModelIndex index = model->index( i, 1 );
+		for ( int i = 0; i < m_model->rowCount(); ++i ) {
+			if ( m_model->index( i, 0 ).data().toDateTime() == key ) {
+				const QModelIndex index = m_model->index( i, 1 );
 				setCurrentIndex( index );
 				scrollTo( index );
 				break;
@@ -98,7 +99,7 @@ ReportEdit::doubleClicked( const QModelIndex & index )
 {
 	const int row = index.row();
 
-	const QDateTime key = model->index( row, 0 ).data().toDateTime();
+	const QDateTime key = m_model->index( row, 0 ).data().toDateTime();
 
 	switch ( index.column() ) {
 		case 1:
@@ -132,9 +133,9 @@ ReportEdit::deleteRecord( const QDateTime & key, int row )
 	QDateTime prevKey;
 
 	if ( row > 0 )
-		model->index( row - 1, 0 ).data().toDateTime();
+		m_model->index( row - 1, 0 ).data().toDateTime();
 
-	QSqlQuery q;
+	PgQuery q;
 
 	q.prepare( QString("DELETE FROM "
 			"%1 "
@@ -156,7 +157,7 @@ ReportEdit::deleteRecord( const QDateTime & key, int row )
 void
 ReportEdit::toggleZakaz( const QDateTime & key )
 {
-	QSqlQuery q;
+	PgQuery q;
 
 	q.prepare( QString("UPDATE %1 SET "
 			"zakaz = ABS( zakaz - 1 ) "
@@ -178,7 +179,7 @@ ReportEdit::toggleZakaz( const QDateTime & key )
 void
 ReportEdit::modifyNumText( const QDateTime & key, int row )
 {
-	const QString oldText = model->index( row, 2 ).data().toString();
+	const QString oldText = m_model->index( row, 2 ).data().toString();
 
 	bool ok;
 
@@ -188,7 +189,7 @@ ReportEdit::modifyNumText( const QDateTime & key, int row )
 	if ( ! ok || oldText == newText )
 		return;
 
-	QSqlQuery q;
+	PgQuery q;
 
 	q.prepare( QString("UPDATE %1 SET "
 				"num_text = :numt "
@@ -212,7 +213,7 @@ ReportEdit::modifyNumText( const QDateTime & key, int row )
 void
 ReportEdit::modifyNum( const QDateTime & key, int row )
 {
-	const QString oldText = model->index( row, 3 ).data().toString();
+	const QString oldText = m_model->index( row, 3 ).data().toString();
 
 	bool ok;
 
@@ -222,7 +223,7 @@ ReportEdit::modifyNum( const QDateTime & key, int row )
 	if ( ! ok || oldText == newText )
 		return;
 
-	QSqlQuery q;
+	PgQuery q;
 
 	q.prepare( QString("UPDATE %1 SET "
 				"num = :num "

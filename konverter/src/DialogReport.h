@@ -50,12 +50,12 @@ class DialogReport : public QDialog
 	private:
 		void createWidgets();
 
-		QDateTimeEdit * editDate;
+		QDateTimeEdit * m_editDate;
 
-		QRadioButton * radioWho,
-					 * radioIshod,
-					 * radioTime,
-					 * radioCity;
+		QRadioButton * m_radioWho,
+					 * m_radioIshod,
+					 * m_radioTime,
+					 * m_radioCity;
 
 	public:
 		DialogReport( QWidget * parent = 0 );

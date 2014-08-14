@@ -31,12 +31,12 @@
 #include "_.h"
 
 Envelope::Envelope()
-	: valid( false )
+	: m_valid( false )
 {
 }
 
 Envelope::Envelope( const QString & line )
-	: valid( false )
+	: m_valid( false )
 {
 	QStringList list = line.split( "|", QString::SkipEmptyParts );
 
@@ -45,139 +45,67 @@ Envelope::Envelope( const QString & line )
 		return;
 	}
 
-	e_id = list[ 0 ].trimmed().toInt();
-	e_name = list[ 1 ].trimmed();
-	e_rowHeight = list[ 2 ].trimmed().toDouble();
+	m_e_id = list[ 0 ].trimmed().toInt();
+	m_e_name = list[ 1 ].trimmed();
+	m_e_rowHeight = list[ 2 ].trimmed().toDouble();
 
-	sender.x = list[ 3 ].trimmed().toDouble();
-	sender.y = list[ 4 ].trimmed().toDouble();
-	sender.width = list[ 5 ].trimmed().toDouble();
-	sender.whoRowCount = list[ 6 ].trimmed().toInt();
-	sender.whereRowCount = list[ 7 ].trimmed().toInt();
-	sender.indexMargin = list[ 8 ].trimmed().toDouble();
-	sender.indexTopOffset = list[ 9 ].trimmed().toDouble();
+	m_sender.x = list[ 3 ].trimmed().toDouble();
+	m_sender.y = list[ 4 ].trimmed().toDouble();
+	m_sender.width = list[ 5 ].trimmed().toDouble();
+	m_sender.whoRowCount = list[ 6 ].trimmed().toInt();
+	m_sender.whereRowCount = list[ 7 ].trimmed().toInt();
+	m_sender.indexMargin = list[ 8 ].trimmed().toDouble();
+	m_sender.indexTopOffset = list[ 9 ].trimmed().toDouble();
 
-	recipient.x = list[ 10 ].trimmed().toDouble();
-	recipient.y = list[ 11 ].trimmed().toDouble();
-	recipient.width = list[ 12 ].trimmed().toDouble();
-	recipient.whoRowCount = list[ 13 ].trimmed().toInt();
-	recipient.whereRowCount = list[ 14 ].trimmed().toInt();
-	recipient.indexMargin = list[ 15 ].trimmed().toDouble();
-	recipient.indexTopOffset = list[ 16 ].trimmed().toDouble();
+	m_recipient.x = list[ 10 ].trimmed().toDouble();
+	m_recipient.y = list[ 11 ].trimmed().toDouble();
+	m_recipient.width = list[ 12 ].trimmed().toDouble();
+	m_recipient.whoRowCount = list[ 13 ].trimmed().toInt();
+	m_recipient.whereRowCount = list[ 14 ].trimmed().toInt();
+	m_recipient.indexMargin = list[ 15 ].trimmed().toDouble();
+	m_recipient.indexTopOffset = list[ 16 ].trimmed().toDouble();
 
 	e_doubleSide = ( list[ 17 ].trimmed().toInt() == 1 );
 
 	e_log = ( list[ 18 ].trimmed().toInt() == 1 );
 
-	valid = true;
+	m_valid = true;
 }
 
 bool
 Envelope::isValid() const
 {
-	return valid;
+	return m_valid;
 }
 
 int
 Envelope::id() const
 {
-	return e_id;
+	return m_e_id;
 }
 
 const QString &
 Envelope::name() const
 {
-	return e_name;
+	return m_e_name;
 }
 
 qreal
 Envelope::rowHeight() const
 {
-	return e_rowHeight;
+	return m_e_rowHeight;
 }
 
-qreal
-Envelope::senderX() const
+const Envelope::Contact &
+Envelope::sender() const
 {
-	return sender.x;
+	return m_sender;
 }
 
-qreal
-Envelope::senderY() const
+const Envelope::Contact &
+Envelope::recipient() const
 {
-	return sender.y;
-}
-
-qreal
-Envelope::senderWidth() const
-{
-	return sender.width;
-}
-
-int
-Envelope::senderWhoRowCount() const
-{
-	return sender.whoRowCount;
-}
-
-int
-Envelope::senderWhereRowCount() const
-{
-	return sender.whereRowCount;
-}
-
-qreal
-Envelope::senderIndexMargin() const
-{
-	return sender.indexMargin;
-}
-
-qreal
-Envelope::senderIndexTopOffset() const
-{
-	return sender.indexTopOffset;
-}
-
-qreal
-Envelope::recipientX() const
-{
-	return recipient.x;
-}
-
-qreal
-Envelope::recipientY() const
-{
-	return recipient.y;
-}
-
-qreal
-Envelope::recipientWidth() const
-{
-	return recipient.width;
-}
-
-int
-Envelope::recipientWhoRowCount() const
-{
-	return recipient.whoRowCount;
-}
-
-int
-Envelope::recipientWhereRowCount() const
-{
-	return recipient.whereRowCount;
-}
-
-qreal
-Envelope::recipientIndexMargin() const
-{
-	return recipient.indexMargin;
-}
-
-qreal
-Envelope::recipientIndexTopOffset() const
-{
-	return recipient.indexTopOffset;
+	return m_recipient;
 }
 
 bool

@@ -29,7 +29,7 @@
 
 #include <QMessageBox>
 #include <QSqlError>
-#include <QSqlQuery>
+#include <NaraPg>
 #include <QString>
 
 void
@@ -39,7 +39,7 @@ _yell( const QString & text )
 }
 
 void
-_yell( const QSqlQuery & query )
+_yell( const PgQuery & query )
 {
 	_yell( query.lastError().text() );
 }

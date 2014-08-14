@@ -30,6 +30,7 @@
 #include <QtGui>
 #include <QtSql>
 #include <NaraGui>
+#include <NaraPg>
 #include "_.h"
 #include "DialogReport.h"
 #include "DialogReportEdit.h"
@@ -68,9 +69,9 @@ FormMain::~FormMain()
 void
 FormMain::createModel()
 {
-	model = new SqlQueryModel( this );
+	m_model = new SqlQueryModel( this );
 
-	connect( model, SIGNAL( fetchedMore( int ) ), SLOT( setCount( int ) ) );
+	connect( m_model, SIGNAL( fetchedMore( int ) ), SLOT( setCount( int ) ) );
 
 	refresh();
 }
@@ -80,7 +81,7 @@ FormMain::refresh( int id )
 {
 	setStatus( Normal );
 
-	model->setQuery( QString("SELECT "
+	m_model->setQuery( QString("SELECT "
 			"id, "
 			"who, "
 			"whe, "
@@ -94,25 +95,25 @@ FormMain::refresh( int id )
 		"ORDER BY "
 			"touch DESC ")
 			.arg( _tableName( "contact" ) )
-			.arg( editFilter->text().isEmpty() ? "":
+			.arg( m_editFilter->text().isEmpty() ? "":
 				QString("AND ( UPPER( who ) like '%%1%' "
-						   "OR UPPER( ind ) like '%%1%' )").arg( editFilter->text().toUpper() ) ) );
+						   "OR UPPER( ind ) like '%%1%' )").arg( m_editFilter->text().toUpper() ) ) );
 
-	table->setModel( model );
-	table->hideColumn( 0 );
-	table->hideColumn( 2 );
-	table->hideColumn( 3 );
-	table->hideColumn( 4 );
+	m_table->setModel( m_model );
+	m_table->hideColumn( 0 );
+	m_table->hideColumn( 2 );
+	m_table->hideColumn( 3 );
+	m_table->hideColumn( 4 );
 
-	connect( table->selectionModel(), SIGNAL( currentChanged( const QModelIndex &, const QModelIndex & ) ),
+	connect( m_table->selectionModel(), SIGNAL( currentChanged( const QModelIndex &, const QModelIndex & ) ),
 				SLOT( contactChanged( const QModelIndex &, const QModelIndex & ) ) );
 
 	if ( id != -1 ) {
-		for ( int i = 0; i < model->rowCount(); ++i ) {
-			if ( model->index( i, 0 ).data().toInt() == id ) {
-				const QModelIndex index = model->index( i, 1 );
-				table->setCurrentIndex( index );
-				table->scrollTo( index );
+		for ( int i = 0; i < m_model->rowCount(); ++i ) {
+			if ( m_model->index( i, 0 ).data().toInt() == id ) {
+				const QModelIndex index = m_model->index( i, 1 );
+				m_table->setCurrentIndex( index );
+				m_table->scrollTo( index );
 				break;
 			}
 		}
@@ -124,41 +125,41 @@ FormMain::createWidgets()
 {
 	QWidget * centralWidget = new QWidget( this );
 
-	sender = new WidgetSender( centralWidget );
+	m_sender = new WidgetSender( centralWidget );
 
-	connect( sender, SIGNAL( whoChanged( const QString & ) ),
+	connect( m_sender, SIGNAL( whoChanged( const QString & ) ),
 			SLOT( modifySenderWho( const QString & ) ) );
-	connect( sender, SIGNAL( whereChanged( const QString & ) ),
+	connect( m_sender, SIGNAL( whereChanged( const QString & ) ),
 			SLOT( modifySenderWhere( const QString & ) ) );
-	connect( sender, SIGNAL( indexChanged( const QString & ) ),
+	connect( m_sender, SIGNAL( indexChanged( const QString & ) ),
 			SLOT( modifySenderIndex( const QString & ) ) );
-	connect( sender, SIGNAL( addressFontChanged( const QFont & ) ),
+	connect( m_sender, SIGNAL( addressFontChanged( const QFont & ) ),
 			SLOT( saveSenderAddressFont( const QFont & ) ) );
-	connect( sender, SIGNAL( languageChanged( QLocale::Language ) ),
+	connect( m_sender, SIGNAL( languageChanged( QLocale::Language ) ),
 			SLOT( setSenderData( QLocale::Language ) ) );
 
-	labelCount = new QLabel( centralWidget );
+	m_labelCount = new QLabel( centralWidget );
 
-	table = new QTableView( centralWidget );
-	table->horizontalHeader()->hide();
-	table->verticalHeader()->hide();
-	table->horizontalHeader()->setStretchLastSection( true );
-	table->setSelectionBehavior( QAbstractItemView::SelectRows );
-	table->setSelectionMode( QAbstractItemView::SingleSelection );
-	table->setAlternatingRowColors( true );
-	table->resize( 300, 100 );
+	m_table = new QTableView( centralWidget );
+	m_table->horizontalHeader()->hide();
+	m_table->verticalHeader()->hide();
+	m_table->horizontalHeader()->setStretchLastSection( true );
+	m_table->setSelectionBehavior( QAbstractItemView::SelectRows );
+	m_table->setSelectionMode( QAbstractItemView::SingleSelection );
+	m_table->setAlternatingRowColors( true );
+	m_table->resize( 300, 100 );
 
-	editFilter = new QLineEdit( centralWidget );
-	editFilter->setToolTip( "Фильтр по имени или почтовому индексу" );
+	m_editFilter = new QLineEdit( centralWidget );
+	m_editFilter->setToolTip("Фильтр по имени или почтовому индексу");
 
-	connect( editFilter, SIGNAL( textChanged( const QString & ) ),
+	connect( m_editFilter, SIGNAL( textChanged( const QString & ) ),
 			SLOT( filterChanged( const QString & ) ) );
 
 	QVBoxLayout * layoutTable = new QVBoxLayout();
 
-	layoutTable->addWidget( labelCount );
-	layoutTable->addWidget( table );
-	layoutTable->addWidget( editFilter );
+	layoutTable->addWidget( m_labelCount );
+	layoutTable->addWidget( m_table );
+	layoutTable->addWidget( m_editFilter );
 
 	buttonAdd = new QToolButton( centralWidget );
 	buttonDel = new QToolButton( centralWidget );
@@ -169,23 +170,23 @@ FormMain::createWidgets()
 
 	buttonPrint->setIconSize( QSize( 97, 61 ) );
 	buttonPrint->setIcon( QIcon(":/postmark.png") );
-	buttonPrint->setToolTip( "Печать, c Ctrl - выбор принтера" );
+	buttonPrint->setToolTip("Печать, c Ctrl - выбор принтера");
 
 	buttonAdd->setIconSize( QSize( 48, 48 ) );
 	buttonAdd->setIcon( QIcon(":/add.png") );
-	buttonAdd->setToolTip( "Добавить контакт" );
+	buttonAdd->setToolTip("Добавить контакт");
 
 	buttonDel->setIconSize( QSize( 48, 48 ) );
 	buttonDel->setIcon( QIcon(":/delete.png") );
-	buttonDel->setToolTip( "Удалить контакт" );
+	buttonDel->setToolTip("Удалить контакт");
 
 	buttonReport->setIconSize( QSize( 48, 48 ) );
-	buttonReport->setIcon( QIcon( ":/report.png") );
-	buttonReport->setToolTip( "Сформировать реестр за дату, с Ctrl - редактировать реестр на дату" );
+	buttonReport->setIcon( QIcon(":/report.png") );
+	buttonReport->setToolTip("Сформировать реестр за дату, с Ctrl - редактировать реестр на дату");
 
 	buttonAbout->setIconSize( QSize( 48, 48 ) );
 	buttonAbout->setIcon( qApp->windowIcon() );
-	buttonAbout->setToolTip( "О программе" );
+	buttonAbout->setToolTip("О программе");
 
 	connect( buttonAdd, SIGNAL( clicked() ), SLOT( addContact() ) );
 
@@ -197,18 +198,19 @@ FormMain::createWidgets()
 
 	connect( buttonPrint, SIGNAL( clicked() ), SLOT( print() ) );
 
-	comboPaperSize = new QComboBox( centralWidget );
+	m_comboPaperSize = new ComboBox( centralWidget );
 
-	comboIshod = new QComboBox( centralWidget );
-	comboIshod->addItem( "Исходящий", QString("Исх. %1").arg( QChar( 0x2116 ) ) );
-	comboIshod->addItem( "Счёт-фактура", "с/ф" );
-	comboIshod->addItem( "Счёт", "cчёт" );
-	comboIshod->addItem( "Акт", "акт" );
-	comboIshod->addItem( "Акт сверки", "акт сверки" );
+	m_comboIshod = new ComboBox( centralWidget );
+	m_comboIshod->addItem("Исходящий", QString("Исх. %1").arg( QChar( 0x2116 ) ) );
+	m_comboIshod->addItem("Счёт-фактура", "с/ф");
+	m_comboIshod->addItem("Счёт", "cчёт");
+	m_comboIshod->addItem("Акт", "акт");
+	m_comboIshod->addItem("Акт сверки", "акт сверки");
+	m_comboIshod->addItem("Накладная", "накл");
 
-	editIshod = new QLineEdit( centralWidget );
+	m_editIshod = new QLineEdit( centralWidget );
 
-	checkZakaz = new QCheckBox( "&заказное", centralWidget );
+	m_checkZakaz = new QCheckBox( "&заказное", centralWidget );
 
 	QHBoxLayout * layoutControls = new QHBoxLayout(),
 				* layoutIshod = new QHBoxLayout(),
@@ -218,30 +220,30 @@ FormMain::createWidgets()
 	layoutButtons->setMargin( 15 );
 
 	layoutControls->addStretch();
-	layoutControls->addWidget( comboPaperSize );
+	layoutControls->addWidget( m_comboPaperSize );
 	layoutControls->addStretch();
 	layoutControls->addWidget( buttonPrint );
 
 	layoutIshod->addStretch();
-	layoutIshod->addWidget( comboIshod );
-	layoutIshod->addWidget( editIshod );
-	layoutIshod->addWidget( checkZakaz );
+	layoutIshod->addWidget( m_comboIshod );
+	layoutIshod->addWidget( m_editIshod );
+	layoutIshod->addWidget( m_checkZakaz );
 	layoutIshod->addStretch();
 
-	recipient = new WidgetRecipient( centralWidget );
+	m_recipient = new WidgetRecipient( centralWidget );
 
-	connect( recipient, SIGNAL( whoChanged( const QString & ) ),
+	connect( m_recipient, SIGNAL( whoChanged( const QString & ) ),
 			SLOT( modifyRecipientWho( const QString & ) ) );
-	connect( recipient, SIGNAL( whereChanged( const QString & ) ),
+	connect( m_recipient, SIGNAL( whereChanged( const QString & ) ),
 			SLOT( modifyRecipientWhere( const QString & ) ) );
-	connect( recipient, SIGNAL( indexChanged( const QString & ) ),
+	connect( m_recipient, SIGNAL( indexChanged( const QString & ) ),
 			SLOT( modifyRecipientIndex( const QString & ) ) );
-	connect( recipient, SIGNAL( addressFontChanged( const QFont & ) ),
+	connect( m_recipient, SIGNAL( addressFontChanged( const QFont & ) ),
 			SLOT( saveRecipientAddressFont( const QFont & ) ) );
 
-	addition = new WidgetAddition( this );
+	m_addition = new WidgetAddition( this );
 
-	connect( addition, SIGNAL( cityChanged( const QString & ) ),
+	connect( m_addition, SIGNAL( cityChanged( const QString & ) ),
 			SLOT( modifyRecipientCity( const QString & ) ) );
 
 	layoutButtons->addStretch();
@@ -254,15 +256,15 @@ FormMain::createWidgets()
 
 	QGridLayout * gridLayout = new QGridLayout( centralWidget );
 
-	gridLayout->addWidget( sender, 0, 0, 2, 1 );
+	gridLayout->addWidget( m_sender, 0, 0, 2, 1 );
 	gridLayout->addLayout( layoutControls, 0, 1, 1, 1, Qt::AlignTop );
 
 	gridLayout->addLayout( layoutIshod, 1, 1 );
 
 	gridLayout->addLayout( layoutTable, 2, 0, 3, 1 );
-	gridLayout->addWidget( recipient, 2, 1 );
+	gridLayout->addWidget( m_recipient, 2, 1 );
 
-	gridLayout->addWidget( addition, 3, 1 );
+	gridLayout->addWidget( m_addition, 3, 1 );
 
 	gridLayout->addLayout( layoutButtons, 4, 1 );
 
@@ -272,7 +274,7 @@ FormMain::createWidgets()
 void
 FormMain::setSenderData( QLocale::Language lang )
 {
-	QSqlQuery q;
+	PgQuery q;
 
 	q.prepare( QString("SELECT "
 			"who, "
@@ -286,7 +288,7 @@ FormMain::setSenderData( QLocale::Language lang )
 
 	if ( q.exec() ) {
 		if ( q.first() )
-			sender->setAll( q.value( 0 ).toString(),
+			m_sender->setAll( q.value( 0 ).toString(),
 					q.value( 1 ).toString(),
 					q.value( 2 ).toString() );
 		else
@@ -304,14 +306,14 @@ FormMain::contactChanged( const QModelIndex & current, const QModelIndex & )
 
 	const int row = current.row();
 
-	const QString who = model->index( row, 1 ).data().toString(),
-				  where = model->index( row, 2 ).data().toString(),
-				  index = model->index( row, 3 ).data().toString(),
-				  city = model->index( row, 4 ).data().toString();
+	const QString who = m_model->index( row, 1 ).data().toString(),
+				  where = m_model->index( row, 2 ).data().toString(),
+				  index = m_model->index( row, 3 ).data().toString(),
+				  city = m_model->index( row, 4 ).data().toString();
 
-	recipient->setAll( who, where, index );
+	m_recipient->setAll( who, where, index );
 
-	addition->setCity( city );
+	m_addition->setCity( city );
 }
 
 void
@@ -319,10 +321,10 @@ FormMain::setCount( int rows )
 {
 	QString s( "записей: " );
 
-	if ( model->canFetchMore() )
+	if ( m_model->canFetchMore() )
 		s += "более ";
 
-	labelCount->setText( s += QString::number( rows ) );
+	m_labelCount->setText( s += QString::number( rows ) );
 }
 
 void
@@ -330,16 +332,12 @@ FormMain::loadSettings()
 {
 	QSettings s;
 
-	loadFont( s, sender, "sender" );
-	loadFont( s, recipient, "recipient" );
+	loadFont( s, m_sender, "sender" );
+	loadFont( s, m_recipient, "recipient" );
 
-	const int e_type = s.value( "envelope_type", 0 ).toInt();
+	const QVariant e_type = s.value( "envelope_type", 0 );
 
-	for ( int i = 0; comboPaperSize->count(); ++i )
-		if ( comboPaperSize->itemData( i ) == e_type ) {
-			comboPaperSize->setCurrentIndex( i );
-			break;
-		}
+	m_comboPaperSize->setCurrentData( e_type );
 }
 
 void
@@ -375,18 +373,18 @@ FormMain::print()
 			return;
 	}
 
-	if ( editIshod->text().trimmed().isEmpty() ) {
+	if ( m_editIshod->text().trimmed().isEmpty() ) {
 		if ( QMessageBox::warning( this, "Предупреждение",
-				"Не заполнено поле " + comboIshod->currentText() +
+				"Не заполнено поле " + m_comboIshod->currentText() +
 				".\nПродолжить?",
 				QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes ) == QMessageBox::No )
 			return;
 	}
 
-	if ( comboPaperSize->count() == 0 )
+	if ( m_comboPaperSize->count() == 0 )
 		return;
 
-	int e_id = comboPaperSize->itemData( comboPaperSize->currentIndex() ).toInt();
+	int e_id = m_comboPaperSize->currentData().toInt();
 
 	const Envelope & e = envelopes[ e_id ];
 
@@ -406,15 +404,15 @@ bool
 FormMain::printSide( const Envelope & e, int side )
 {
 	// sizes checking
-	QStringList senderWho = sender->whoList( e.senderWidth() ),
-				senderWhere = sender->whereList( e.senderWidth() ),
-				recipientWho = recipient->whoList( e.recipientWidth() ),
-				recipientWhere = recipient->whereList( e.recipientWidth() );
+	QStringList senderWho = m_sender->whoList( e.sender().width ),
+				senderWhere = m_sender->whereList( e.sender().width ),
+				recipientWho = m_recipient->whoList( e.recipient().width ),
+				recipientWhere = m_recipient->whereList( e.recipient().width );
 
-	if ( ! checkSize( senderWho, e.senderWhoRowCount(), "От кого отправителя" ) ||
-			! checkSize( senderWhere, e.senderWhereRowCount(), "Откуда отправителя" ) ||
-			! checkSize( recipientWho, e.recipientWhoRowCount(), "Кому адресата" ) ||
-			! checkSize( recipientWhere, e.recipientWhereRowCount(), "Куда адресата" ) )
+	if ( ! checkSize( senderWho, e.sender().whoRowCount, "От кого отправителя") ||
+			! checkSize( senderWhere, e.sender().whereRowCount, "Откуда отправителя") ||
+			! checkSize( recipientWho, e.recipient().whoRowCount, "Кому адресата") ||
+			! checkSize( recipientWhere, e.recipient().whereRowCount, "Куда адресата") )
 		return false;
 
 	/// printing
@@ -426,67 +424,67 @@ FormMain::printSide( const Envelope & e, int side )
 	if ( ! e.doubleSide() || side == 1 ) {
 
 		// sender data
-		painter.setFont( sender->addrFont() );
+		painter.setFont( m_sender->addrFont() );
 		painter.setPen( QPen( Qt::black ) );
 
 		painter.save();			// sender from
-		painter.translate( e.senderX(), e.senderY() );
+		painter.translate( e.sender().x, e.sender().y );
 		painter.rotate( -90 );
 
 		// who
-		for ( int i = 0; i < senderWho.size() && i < e.senderWhoRowCount(); ++i )
+		for ( int i = 0; i < senderWho.size() && i < e.sender().whoRowCount; ++i )
 			painter.drawText( 0, qRound( i * e.rowHeight() ), senderWho[ i ] );
 
 		// where
-		for ( int i = 0; i < senderWhere.size() && i < e.senderWhereRowCount(); ++i )
-			painter.drawText( 0, ( i + e.senderWhoRowCount() ) * e.rowHeight(), senderWhere[ i ] );
+		for ( int i = 0; i < senderWhere.size() && i < e.sender().whereRowCount; ++i )
+			painter.drawText( 0, ( i + e.sender().whoRowCount ) * e.rowHeight(), senderWhere[ i ] );
 
 		// исходящий номер
-		QString ishod = editIshod->text().trimmed();
+		QString ishod = m_editIshod->text().trimmed();
 
 		if ( ! ishod.isEmpty() ) {
-			ishod.prepend(" ").prepend( comboIshod->itemData( comboIshod->currentIndex() ).toString() );
+			ishod.prepend(" ").prepend( m_comboIshod->currentData().toString() );
 
 			painter.drawText( 0,
-					( e.senderWhoRowCount() + e.senderWhereRowCount() ) * e.rowHeight(),
+					( e.sender().whoRowCount + e.sender().whereRowCount ) * e.rowHeight(),
 					ishod );
 
-			editIshod->clear();
-			checkZakaz->setChecked( false );
+			m_editIshod->clear();
+			m_checkZakaz->setChecked( false );
 		}
 
 		// index
-		painter.drawText( e.senderIndexMargin(),
-				( e.senderWhoRowCount() + e.senderWhereRowCount() ) * e.rowHeight() +
-					e.senderIndexTopOffset(),
-				sender->getIndex() );
+		painter.drawText( e.sender().indexMargin,
+				( e.sender().whoRowCount + e.sender().whereRowCount ) * e.rowHeight() +
+					e.sender().indexTopOffset,
+				m_sender->getIndex() );
 
 		painter.restore();
 	}
 
 	if ( ! e.doubleSide() || side == 2 ) {
 		// recipient data
-		painter.setFont( recipient->addrFont() );
+		painter.setFont( m_recipient->addrFont() );
 		painter.setPen( QPen( Qt::black ) );
 
 		painter.save();
-		painter.translate( e.recipientX(), e.recipientY() );
+		painter.translate( e.recipient().x, e.recipient().y );
 		painter.rotate( -90 );
 
 		// who
-		for ( int i = 0; i < recipientWho.size() && i < e.recipientWhoRowCount(); ++i )
+		for ( int i = 0; i < recipientWho.size() && i < e.recipient().whoRowCount; ++i )
 			painter.drawText( 0, i * e.rowHeight(), recipientWho[ i ] );
 
 		// where
-		for ( int i = 0; i < recipientWhere.size() && i < e.recipientWhereRowCount(); ++i )
-			painter.drawText( 0, ( i + e.recipientWhoRowCount() ) * e.rowHeight(),
+		for ( int i = 0; i < recipientWhere.size() && i < e.recipient().whereRowCount; ++i )
+			painter.drawText( 0, ( i + e.recipient().whoRowCount ) * e.rowHeight(),
 					recipientWhere[ i ] );
 
 		// index
-		painter.drawText( e.recipientIndexMargin(),
-				( e.recipientWhoRowCount() + e.recipientWhereRowCount() ) * e.rowHeight() +
-					e.recipientIndexTopOffset(),
-				recipient->getIndex() );
+		painter.drawText( e.recipient().indexMargin,
+				( e.recipient().whoRowCount + e.recipient().whereRowCount ) * e.rowHeight() +
+					e.recipient().indexTopOffset,
+				m_recipient->getIndex() );
 
 		painter.restore();
 	}
@@ -511,7 +509,7 @@ FormMain::createPrinter()
 void
 FormMain::modifyContact( const QString & field, const QString & text, int id ) const
 {
-	QSqlQuery q;
+	PgQuery q;
 
 	q.prepare( QString("UPDATE "
 			"%1 "
@@ -519,7 +517,7 @@ FormMain::modifyContact( const QString & field, const QString & text, int id ) c
 			"%2 = :text "
 		"WHERE "
 			"id = :id")
-			.arg( _tableName( id != 0 ? "contact" : sender->language() == QLocale::Russian ? "contact" : "i18n" ) )
+			.arg( _tableName( id != 0 ? "contact" : m_sender->language() == QLocale::Russian ? "contact" : "i18n" ) )
 			.arg( field ) );
 
 	q.bindValue(":text", text );
@@ -596,7 +594,7 @@ FormMain::insertContact( const QString & field, const QString & text ) const
 	QString sql( QString("INSERT INTO %1 ( who, whe, ind, city, touch ) VALUES (" )
 			.arg( _tableName( "contact" ) ) );
 
-	QSqlQuery q;
+	PgQuery q;
 
 	if ( field == "who" )
 		sql += ":text, '', '', ''";
@@ -649,21 +647,21 @@ FormMain::addContact()
 {
 	setStatus( NewContact );
 
-	recipient->setAll( "", "", "" );
-	recipient->setWho();
+	m_recipient->setAll( "", "", "" );
+	m_recipient->setWho();
 }
 
 void
 FormMain::delContact()
 {
-	if ( ! table->selectionModel() )
+	if ( ! m_table->selectionModel() )
 		return;
 
 	if ( QMessageBox::question( this, "Подтвердите", "Действительно удалить контакт?",
 				QMessageBox::Yes | QMessageBox::No, QMessageBox::No ) == QMessageBox::No )
 		return;
 
-	QSqlQuery q;
+	PgQuery q;
 
 	// TODO удалить все записи из журнала, или не надо, ON DELETE CASCADE, проверить
 
@@ -685,12 +683,12 @@ FormMain::delContact()
 int
 FormMain::currentId() const
 {
-	if ( table->selectionModel() ) {
+	if ( m_table->selectionModel() ) {
 
-		const int row = table->selectionModel()->currentIndex().row();
+		const int row = m_table->selectionModel()->currentIndex().row();
 
 		if ( row != -1 )
-			return model->index( row, 0 ).data().toInt();
+			return m_model->index( row, 0 ).data().toInt();
 	}
 
 	return -1;
@@ -747,7 +745,7 @@ FormMain::writeLog() const
 	if ( id == -1 )
 		return;
 
-	QSqlQuery q;
+	PgQuery q;
 
 	q.prepare( QString("INSERT INTO %1 ("
 			"contact_id, "
@@ -762,9 +760,9 @@ FormMain::writeLog() const
 			.arg( _tableName( "log" ) ) );
 
 	q.bindValue(":id", id );
-	q.bindValue(":numt", comboIshod->itemData( comboIshod->currentIndex() ).toString() );
-	q.bindValue(":num", editIshod->text().trimmed() );
-	q.bindValue(":zak", checkZakaz->isChecked() ? 1 : 0 );
+	q.bindValue(":numt", m_comboIshod->currentData() );
+	q.bindValue(":num", m_editIshod->text().trimmed() );
+	q.bindValue(":zak", m_checkZakaz->isChecked() ? 1 : 0 );
 
 	if ( ! q.exec() )
 		_yell( q );
@@ -817,7 +815,7 @@ FormMain::loadEnvelopes()
 
 		if ( e.isValid() ) {
 			envelopes[ e.id() ] = e;
-			comboPaperSize->addItem( e.name(), e.id() );
+			m_comboPaperSize->addItem( e.name(), e.id() );
 		}
 	}
 }
@@ -878,7 +876,7 @@ FormMain::saveEnvelopeType() const
 {
 	QSettings s;
 
-	s.setValue( "envelope_type", comboPaperSize->itemData( comboPaperSize->currentIndex() ).toInt() );
+	s.setValue( "envelope_type", m_comboPaperSize->currentData() );
 }
 
 bool
@@ -976,9 +974,9 @@ FormMain::dbConnect()
 	}
 
 	if ( db.open() ) {
-		setSenderData( sender->language() );
+		setSenderData( m_sender->language() );
 		createModel();
-		addition->updateModelCompleter();
+		m_addition->updateModelCompleter();
 
 		if ( _dbPg )
 			setWindowTitle( qApp->applicationName().append(" - %1@%2").arg( user, host ) );

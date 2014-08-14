@@ -33,8 +33,7 @@
 
 class Envelope
 {
-	private:
-
+	public:
 		struct Contact {
 			qreal x,
 				  y,
@@ -46,16 +45,18 @@ class Envelope
 				  indexTopOffset;
 		};
 
-		bool valid;
+	private:
 
-		int e_id;
+		bool m_valid;
 
-		QString e_name;
+		int m_e_id;
 
-		qreal e_rowHeight;
+		QString m_e_name;
 
-		Contact sender,
-				recipient;
+		qreal m_e_rowHeight;
+
+		Contact m_sender,
+				m_recipient;
 
 		bool e_doubleSide;
 
@@ -73,33 +74,9 @@ class Envelope
 
 		qreal rowHeight() const;
 
-		qreal senderX() const;
+		const Contact & sender() const;
 
-		qreal senderY() const;
-
-		qreal senderWidth() const;
-
-		int senderWhoRowCount() const;
-
-		int senderWhereRowCount() const;
-
-		qreal senderIndexMargin() const;
-
-		qreal senderIndexTopOffset() const;
-
-		qreal recipientX() const;
-
-		qreal recipientY() const;
-
-		qreal recipientWidth() const;
-
-		int recipientWhoRowCount() const;
-
-		int recipientWhereRowCount() const;
-
-		qreal recipientIndexMargin() const;
-
-		qreal recipientIndexTopOffset() const;
+		const Contact & recipient() const;
 
 		bool doubleSide() const;
 

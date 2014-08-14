@@ -39,12 +39,11 @@ DialogReportEdit::DialogReportEdit( QWidget * parent )
 void
 DialogReportEdit::createWidgets()
 {
-	editDate = new QDateTimeEdit( QDate::currentDate(), this );
-	editDate->setDisplayFormat( "dd.MM.yyyy" );
+	m_editDate = new QDateTimeEdit( QDate::currentDate(), this );
+	m_editDate->setDisplayFormat( "dd.MM.yyyy" );
 
 	QLabel * labelDate = new QLabel( "Дата", this );
-
-	labelDate->setBuddy( editDate );
+	labelDate->setBuddy( m_editDate );
 
 	QDialogButtonBox * buttonBox = new QDialogButtonBox( QDialogButtonBox::Ok |
 			QDialogButtonBox::Cancel );
@@ -55,14 +54,13 @@ DialogReportEdit::createWidgets()
 	QGridLayout * layout = new QGridLayout( this );
 
 	layout->addWidget( labelDate, 0, 0 );
-	layout->addWidget( editDate, 0, 1 );
+	layout->addWidget( m_editDate, 0, 1 );
 	layout->addWidget( buttonBox, 1, 0, 1, 2 );
 }
 
 QDate
 DialogReportEdit::date() const
 {
-	return editDate->date();
+	return m_editDate->date();
 }
-
 

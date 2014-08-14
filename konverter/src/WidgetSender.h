@@ -39,8 +39,8 @@ class WidgetSender : public WidgetContact
 	Q_OBJECT
 
 	private:
-		static const QString fromWho,
-							 fromWhere;
+		static const QString m_fromWho,
+							 m_fromWhere;
 
 		QLocale::Language m_language;
 

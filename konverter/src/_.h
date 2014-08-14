@@ -30,11 +30,11 @@
 
 #include <QString>
 
-class QSqlQuery;
+class PgQuery;
 
 extern void _yell( const QString & text );
 
-extern void _yell( const QSqlQuery & query );
+extern void _yell( const PgQuery & query );
 
 extern bool _dbPg;
 

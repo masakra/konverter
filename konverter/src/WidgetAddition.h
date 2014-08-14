@@ -14,11 +14,11 @@ class WidgetAddition : public QWidget
 	private:
 		void createWidgets();
 
-		LineEdit * editCity;
+		LineEdit * m_editCity;
 
-		QString cachedCity;
+		QString m_cachedCity;
 
-		QStringListModel * modelCompleter;
+		QStringListModel * m_modelCompleter;
 
 	private Q_SLOTS:
 		void editReturned();

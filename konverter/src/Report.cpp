@@ -30,7 +30,7 @@
 #include "Report.h"
 
 #include <QtGui>
-#include <QtSql>
+#include <NaraPg>
 #include "_.h"
 #include "DialogReport.h"
 
@@ -43,9 +43,9 @@ Report::Report( QWidget * parent )
 void
 Report::show( const DialogReport & dialog )
 {
-	setWindowTitle( dialog.date().toString( "dd MMM yyyy" ) );
+	setWindowTitle( dialog.date().toString("dd MMM yyyy") );
 
-	setDefaultFileName( QString("konverter_%1_report").arg( dialog.date().toString("dd_MM_yyyy" ) ) );
+	setDefaultFileName( QString("konverter_%1_report").arg( dialog.date().toString("dd_MM_yyyy") ) );
 
 	makeReport( dialog );
 
@@ -112,7 +112,7 @@ Report::makeReport( const DialogReport & dialog )
 			orderColumn = "5";	// по-умолчанию по городу
 	}
 
-	QSqlQuery q;
+	PgQuery q;
 
 	q.prepare( QString("SELECT "
 			"c.who, "
@@ -161,10 +161,6 @@ Report::makeReport( const DialogReport & dialog )
 			  if ( ! q.value( 3 ).toString().trimmed().isEmpty() )
 				  text += q.value( 2 ).toString() + " " + q.value( 3 ).toString();
 			  text += "</TD>";
-
-			  //text += QString("<TD BGCOLOR=%1>").arg( bgcolor );
-			  //text += q.value( 3 ).toString();
-			  //text += "</TD>";
 
 			  text += QString("<TD BGCOLOR=%1>").arg( bgcolor );
 			  text += ( q.value( 5 ).toInt() == 1 ? "заказное" : "" );

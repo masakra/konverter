@@ -35,28 +35,28 @@
 
 WidgetContact::WidgetContact( QWidget * parent )
 	: QWidget( parent ),
-	cachedLineMargin( 0 ),
-	addressFont( QFont() ),
-	cachedRowHeight( 0 )
+	m_cachedLineMargin( 0 ),
+	m_addressFont( QFont() ),
+	m_cachedRowHeight( 0 )
 
 {
-	edit = new LineEdit( this );
-	edit->hide();
+	m_edit = new LineEdit( this );
+	m_edit->hide();
 
-	connect( edit, SIGNAL( returnPressed() ), SLOT( editReturned() ) );
-	connect( edit, SIGNAL( escapePressed() ), SLOT( editEscaped() ) );
-	connect( edit, SIGNAL( focusOut() ), SLOT( editEscaped() ) );
+	connect( m_edit, SIGNAL( returnPressed() ), SLOT( editReturned() ) );
+	connect( m_edit, SIGNAL( escapePressed() ), SLOT( editEscaped() ) );
+	connect( m_edit, SIGNAL( focusOut() ), SLOT( editEscaped() ) );
 }
 
 void
 WidgetContact::setAddressFont( const QFont & f )
 {
-	addressFont = f;
+	m_addressFont = f;
 
-	cachedRowHeight = 0;
-	cachedSizeHint = QSize( 0, 0 );
+	m_cachedRowHeight = 0;
+	m_cachedSizeHint = QSize( 0, 0 );
 
-	emit addressFontChanged( addressFont );
+	emit addressFontChanged( m_addressFont );
 
 	//setMinimumSize( 350, sizeHint().height() );
 }
@@ -64,43 +64,43 @@ WidgetContact::setAddressFont( const QFont & f )
 void
 WidgetContact::setAll( const QString & wh, const QString & we, const QString & idx )
 {
-	who = wh;
-	where = we;
-	index = idx;
+	m_who = wh;
+	m_where = we;
+	m_index = idx;
 	update();
 }
 
 void
 WidgetContact::setWho( const QString & text )
 {
-	who = text;
+	m_who = text;
 	update();
 }
 
 void
 WidgetContact::setWhere( const QString & text )
 {
-	where = text;
+	m_where = text;
 	update();
 }
 
 void
 WidgetContact::setIndex( const QString & text )
 {
-	index = text;
+	m_index = text;
 	update();
 }
 
 int
 WidgetContact::rowHeight() const
 {
-	if ( cachedRowHeight == 0 ) {
-		const QFontMetrics fm( addressFont );
+	if ( m_cachedRowHeight == 0 ) {
+		const QFontMetrics fm( m_addressFont );
 
-		cachedRowHeight = fm.height();
+		m_cachedRowHeight = fm.height();
 	}
 
-	return cachedRowHeight;
+	return m_cachedRowHeight;
 }
 
 void
@@ -108,7 +108,7 @@ WidgetContact::selectAddressFont()
 {
 	bool ok;
 
-	QFont fnt = QFontDialog::getFont( &ok, addressFont, this, "Выбери шрифт" );
+	QFont fnt = QFontDialog::getFont( &ok, m_addressFont, this, "Выбери шрифт" );
 
 	if ( ok ) {
 		setAddressFont( fnt );
@@ -119,23 +119,23 @@ WidgetContact::selectAddressFont()
 int
 WidgetContact::lineMargin() const
 {
-	if ( cachedLineMargin == 0 ) {
+	if ( m_cachedLineMargin == 0 ) {
 		QFont fnt( font() );
 		fnt.setItalic( true );
 
 		const QFontMetrics fm( fnt );
 
-		cachedLineMargin = qMax( fm.width( whoStr() ), fm.width( whereStr() ) );
-		cachedLineMargin += MARGIN + 3;
+		m_cachedLineMargin = qMax( fm.width( whoStr() ), fm.width( whereStr() ) );
+		m_cachedLineMargin += MARGIN + 3;
 	}
 
-	return cachedLineMargin;
+	return m_cachedLineMargin;
 }
 
 void
 WidgetContact::mousePressEvent( QMouseEvent * event )
 {
-	if ( event->buttons() & Qt::RightButton && State == Normal ) {
+	if ( event->buttons() & Qt::RightButton && m_state == Normal ) {
 
 		QMenu menu;
 
@@ -160,16 +160,16 @@ WidgetContact::contextMenu( QMenu & /*menu*/ ) const
 void
 WidgetContact::setWho()
 {
-	State = SettingWho;
+	m_state = SettingWho;
 
-	const QFontMetrics fm( addressFont );
+	const QFontMetrics fm( m_addressFont );
 
 	const int y = fm.height() + MARGIN -	// 1st row
-		edit->height() + 4;
+		m_edit->height() + 4;
 
-	edit->setText( who );
+	m_edit->setText( m_who );
 
-	newly = who.isEmpty();
+	m_newly = m_who.isEmpty();
 
 	showEdit( width() - lineMargin() - MARGIN, lineMargin(), y );
 }
@@ -179,46 +179,46 @@ WidgetContact::showEdit( int w, int m, int y )
 {
 	update();
 
-	edit->resize( w, edit->height() );
-	edit->move( m, y );
+	m_edit->resize( w, m_edit->height() );
+	m_edit->move( m, y );
 
-	edit->show();
-	edit->setFocus();
+	m_edit->show();
+	m_edit->setFocus();
 }
 
 void
 WidgetContact::editReturned()
 {
-	switch ( State ) {
+	switch ( m_state ) {
 		case SettingWho:
-			who = edit->text().trimmed();
-			emit whoChanged( who );
-			if ( newly ) {
+			m_who = m_edit->text().trimmed();
+			emit whoChanged( m_who );
+			if ( m_newly ) {
 				setWhere();
 				return;
 			} else
 				break;
 
 		case SettingWhere:
-			where = edit->text().trimmed();
-			emit whereChanged( where );
-			if ( newly ) {
+			m_where = m_edit->text().trimmed();
+			emit whereChanged( m_where );
+			if ( m_newly ) {
 				setIndex();
 				return;
 			} else
 				break;
 
 		case SettingIndex:
-			index = edit->text().trimmed();
-			emit indexChanged( index );
+			m_index = m_edit->text().trimmed();
+			emit indexChanged( m_index );
 			break;
 
 		default:
 			return;
 	}
 
-	edit->hide();
-	State = Normal;
+	m_edit->hide();
+	m_state = Normal;
 
 	update();
 }
@@ -226,33 +226,33 @@ WidgetContact::editReturned()
 void
 WidgetContact::editEscaped()
 {
-	edit->hide();
-	State = Normal;
+	m_edit->hide();
+	m_state = Normal;
 	update();
 }
 
 const QFont &
 WidgetContact::addrFont() const
 {
-	return addressFont;
+	return m_addressFont;
 }
 
 const QString &
 WidgetContact::getIndex() const
 {
-	return index;
+	return m_index;
 }
 
 QStringList
 WidgetContact::whoList( int w ) const
 {
-	return split( who, w );
+	return split( m_who, w );
 }
 
 QStringList
 WidgetContact::whereList( int w ) const
 {
-	return split( where, w );
+	return split( m_where, w );
 }
 
 QStringList
@@ -260,7 +260,7 @@ WidgetContact::split( const QString & str, int w ) const
 {
 	QStringList list;
 
-	const QFontMetrics fm( addressFont );
+	const QFontMetrics fm( m_addressFont );
 
 	if ( fm.width( str ) <= w ) {
 		list << str;
